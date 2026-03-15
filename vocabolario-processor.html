@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocabolario Processor</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1208;
+    --paper: #f5f0e8;
+    --cream: #ede6d6;
+    --rust: #b5451b;
+    --sage: #5a7a5c;
+    --mist: #8a9ba8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    padding: 40px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(26,18,8,0.04) 27px, rgba(26,18,8,0.04) 28px);
+  }
+  .container { width: 100%; max-width: 780px; }
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.4rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--rust);
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-bottom: 36px;
+  }
+  .control-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 12px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid var(--ink);
+    transition: all 0.2s;
+    touch-action: manipulation;
+  }
+  .btn-primary { background: var(--ink); color: var(--paper); }
+  .btn-primary:hover { background: var(--rust); border-color: var(--rust); }
+  .btn-secondary { background: transparent; color: var(--ink); }
+  .btn-secondary:hover { background: var(--ink); color: var(--paper); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .status-box {
+    background: white;
+    border: 1px solid rgba(26,18,8,0.12);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .status-line {
+    font-size: 0.7rem;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .status-line span { color: var(--rust); }
+  .progress-track {
+    width: 100%;
+    height: 3px;
+    background: rgba(26,18,8,0.1);
+    margin: 14px 0 6px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--rust);
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .progress-label {
+    font-size: 0.58rem;
+    color: var(--mist);
+  }
+  .log {
+    background: white;
+    border: 1px solid rgba(26,18,8,0.12);
+    padding: 16px 20px;
+    height: 180px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    font-size: 0.62rem;
+    line-height: 1.8;
+    color: var(--mist);
+  }
+  .log .entry { color: var(--ink); }
+  .log .entry.good { color: var(--sage); }
+  .log .entry.skip { color: var(--mist); }
+  .log .entry.err { color: var(--rust); }
+  .output-section { margin-top: 8px; }
+  .output-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .copy-btn {
+    font-size: 0.58rem;
+    padding: 4px 12px;
+    border: 1px solid rgba(26,18,8,0.2);
+    background: transparent;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mist);
+  }
+  .copy-btn:hover { color: var(--ink); border-color: var(--ink); }
+  textarea {
+    width: 100%;
+    height: 320px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    padding: 16px;
+    background: white;
+    border: 1px solid rgba(26,18,8,0.12);
+    color: var(--ink);
+    resize: vertical;
+    outline: none;
+  }
+  .result-count {
+    font-size: 0.62rem;
+    color: var(--sage);
+    margin-top: 8px;
+  }
+  .warning {
+    background: #fff8f0;
+    border: 1px solid rgba(181,69,27,0.3);
+    padding: 14px 18px;
+    font-size: 0.65rem;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    color: var(--ink);
+  }
+  .warning strong { color: var(--rust); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Vocabolario Processor</h1>
+  <div class="subtitle">B2 · C1 — Word Bank Builder</div>
+
+  <div class="warning">
+    <strong>Before starting:</strong> Make sure you're running this from <strong>marsico.us</strong> (not locally) so the Cloudflare Worker proxy is reachable. This will process 2,472 items in ~62 batches. It takes about 10–15 minutes and costs roughly $0.50–1.00 in API credits. You can pause and resume — results accumulate as it runs.
+  </div>
+
+  <div class="status-box">
+    <div class="status-line">Total items: <span id="total-count">2,472</span></div>
+    <div class="status-line">Batches: <span id="batch-count">—</span></div>
+    <div class="status-line">Status: <span id="status-text">Ready</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-label" id="progress-label">0 / 62 batches complete</div>
+  </div>
+
+  <div class="control-row">
+    <button class="btn btn-primary" id="start-btn" onclick="startProcessing()">Start Processing</button>
+    <button class="btn btn-secondary" id="pause-btn" onclick="togglePause()" disabled>Pause</button>
+    <button class="btn btn-secondary" onclick="clearResults()">Clear Results</button>
+  </div>
+
+  <div class="log" id="log"></div>
+
+  <div class="output-section">
+    <div class="output-label">
+      Generated wordBank entries
+      <button class="copy-btn" onclick="copyOutput()">Copy all</button>
+    </div>
+    <textarea id="output" readonly placeholder="Results will appear here as batches complete…"></textarea>
+    <div class="result-count" id="result-count"></div>
+  </div>
+</div>
+
+<script>
+const PROXY_URL = 'https://traduttore-proxy.justin-marsico.workers.dev';
+const BATCH_SIZE = 40;
+
+const ALL_ITEMS = ["A Pineta", "A bordo skipper e cuoco", "A botte", "A braico", "A chi tocca?", "A cosa ti fanno pensare", "A far larger spesa in paese", "A fare", "A ficcare", "A malapena apriva bocca", "A me così non mi guarda più nessuno da anni", "A paraico", "A partire", "A protection", "A quanto pare, no", "A sentire la mia donna, anzi la mia ex", "A svolgere", "A vanvera", "A volte si mangia solo", "Abbassando la gazzetta lui scosse la testa", "Abbiamo controllato bene i bagagli", "Abbiamo voluto", "Abbiano ostacolato", "Abbina", "Abbinale", "Abbonato", "Abituarsi", "Abituato", "Abolire", "Accade", "Accappatoio", "Accasciate", "Accecante", "Accende", "Accennavi", "Accesa", "Accidenti", "Acciughe", "Accoglienza", "Accolto", "Accompagnare", "Accontentare", "Accorciare", "Accorgersene", "Accudire", "Aci stuffo", "Acquitrinoso", "Acuminato e bruciante", "Adare", "Adatta", "Adatto", "Addirittura", "Addirittura venuto il sospetto", "Addosso", "Adeguato", "Adeguiamo", "Advertising", "Affaccia", "Affamati", "Affari", "Affatto", "Affatto bene", "Affettati", "Affettivo", "Affidare", "Affiggere", "Affitti", "Affrontata", "Agganciare", "Aggiornamenti", "Aggirare", "Aggiusta", "Aggiustato", "Aggiusterà", "Aggrediscono", "Aggredito", "Agio", "Agisce", "Ahimè", "Ai miei ci penserò io", "Aiuta a riprendere il filo del discorso", "Aiutare i bambini a fissare i ricordi ed esercitare la memoria", "Al contempo penso", "Alcuna", "Alcuni", "Alici", "Alimenta", "Alimentare", "Alimentari", "Alla tortura", "Allargare", "Allatare", "Allatta", "Allattavano", "Alle assenze", "Alle ferie", "Alle tasche", "Alleati", "Allega", "Allena", "Allenamento", "Allenate", "Allenatore", "Allevare", "Allievo", "Allo scopo di", "Allontanati", "Allontare", "Allowing us to stay", "All’inimento", "All’inizio della moneta", "All’olfatto", "Almeno", "Alto Adige", "Alto tasso", "Altoparlanti", "Altrimenti", "Alzai il muso ed eccola", "Alzarsi", "Alzo", "Amaro", "Amate", "Ambientato", "Ammalarsi", "Ammazzarlo", "Ammesso", "Ampia", "Anche se non ne ho voglia", "Anche se perdete, continuate a giocare", "Anche se trovo esagerato", "Ancora", "Ancora una volta", "Andai", "Andare è Inghilterra e utile", "Aneddoto", "Anidride carbonica", "Annaffiare", "Annegato", "Annodarsi", "Annodarsi al collo sciarpette", "Anteriorità", "Antipatica", "Anything", "Anzi", "Appagante", "Appalti pubblici", "Apparecchio", "Appartengo", "Appassionato", "Appassionavano", "Appena", "Appena arrivata", "Appendeva", "Appendeva alla sbarra", "Appesa al collo", "Appoggiato", "Approfondire", "Approvare", "Appunto", "Aranista", "Aravano", "Arbitro", "Archeo", "Archi stuff I", "Arci stuffo", "Arci stufo", "Ardito bussa", "Armadi", "Armamenti", "Armi giocattolo", "Arrangiarsi", "Arreda", "Arroccato", "As", "Ascensore", "Ascolti e ripeta", "Asilo", "Aspettativa", "Aspettativa facoltativa", "Aspetti e ripeta", "Aspirapolvere", "Assai", "Assaliti", "Assegno", "Assieme", "Assunte", "Assunto", "Ateneo", "Attaccapanni", "Attaccar discorso", "Attaccarono", "Attaccarono discorso", "Attaccato alla gonnella", "Attendare", "Attendesse", "Atterraggio", "Attimo", "Attira sguardi", "Attirare", "Attorno", "Attorno a noi", "Attrezzato", "Attrezzo", "Auguri", "Aumentasse", "Aumentato", "Autogeno", "Avanti", "Avanzi", "Avendo tanti requisiti", "Aver", "Avesse", "Avete potuto guardare il film in italiano", "Aveva preso le ferie due mesi", "Avevamo cartelle di cuoio", "Avevi voluto che cucinare", "Avevi voluto mi cucinare", "Avevo dovuto", "Avrai da leggerne", "Avresti ridato", "Avvengono", "Avvenute", "Avvertire", "Avviare", "Avviene", "Azienda", "Azzittita", "Azzurrognolo", "Baccalà", "Bacia", "Bagliori", "Bagnato al tatto", "Baita", "Balconate", "Bambole", "Banco", "Bando alle ciance", "Bankers", "Barato", "Basta scie", "Basta scie chimiche", "Basta scire chimiche", "Bastava una pomata", "Batosta", "Batte", "Batti le mani", "Battuta", "Bazzica", "Bellissimi", "Benché", "Benché mio padre ce l’avesse molto", "Benedetto", "Bersagli", "Bersaglio", "Be’", "Biancastro", "Bibita", "Bibita troppo fredda", "Bibite", "Bicchiere", "Bidocale", "Biella", "Bilanciamento", "Bilancio", "Bilanco", "Bimba", "Bisognare", "Bisognerebbe", "Bit che sfarfallano", "Boato", "Bocciati", "Bocciato", "Bocciatura", "Bocciatura su tutta la linea", "Bolle violacee", "Bolletta", "Bollettino di guerra", "Borgo", "Borragine", "Borsò", "Bottarga", "Botte", "Bottone", "Braccio rotto", "Braico", "Bresciana", "Brulle", "Buco", "Buia", "Buio", "Buon viaggio", "Burattini", "Burrone", "Bussola", "Busta", "But che sfarfallano", "But you said that you had bought the tickets", "Butta", "Buttava", "Cacciato", "Cacio", "Cadrò", "Cagnolina", "Calcio", "Calco", "Call", "Calo", "Calore", "Calorifero", "Calza", "Calzati", "Cambio", "Campana di vetro", "Candidi", "Canino", "Canone", "Cantieri", "Canzone", "Capaci di rinunciare", "Capacità legate", "Capelli candidi, crespi", "Capelli crespi", "Capodanno", "Caporedattrice", "Capostazione", "Cappellaccio di paglia", "Cappucci", "Cappuccio", "Capriolo", "Carame", "Carattere", "Care", "Caricare", "Caricare i dati fiscali", "Carrabile", "Carrozza", "Cartelle criptate", "Cartelli", "Cartello", "Cartellone", "Casalinga", "Cascare", "Casco rigonfio", "Caseificio", "Caso", "Cassaforte", "Cattedra", "Catturato", "Cautelare in attesa", "Cavalcato", "Cavarsela", "Cavatappi", "Caviglia", "Ce la caveremmo", "Ce l’hai", "Ce l’hanno", "Celibi", "Celibi uno", "Cenare", "Cenere", "Cenone", "Ceralacca", "Cercare", "Cercata è occupata", "Cercato", "Cerchia", "Cestino", "Cetriolo", "Chatta", "Che ci arrivava alle spalle", "Che cosa indossa", "Che cosa vuoi", "Che dettano altri", "Che devo dare", "Che devo fare", "Che di fatto ribaltava quello che era successo", "Che fastidio", "Che goduria", "Che guaio", "Che l’hai comprato a fare questo quaderno?", "Che metta i manifesti", "Che peccato", "Che preparava lui stesso, sul fornello a spirito", "Che sono quelli poi di Internet", "Che ti pare", "Chiamarla tresca", "Chiamarsi", "Chiasosse", "Chiassosa", "Chiassose", "Chieder chi telefona", "Chiedere di una persona", "Chinava", "Chiodi", "Chissà quanti soldi hai speso", "Chiunque sia uscito dall’anonimato", "Chiusa", "Ci accadeva d’incontrarla", "Ci fermammo spesso", "Ci godiamo", "Ci informeremo sul prezzo", "Ci metteremmo troppo", "Ci scalda", "Ci scusi tanto", "Ci si sposa", "Ci tengo io", "Cifra", "Ciliegia", "Cioè", "Circare", "Ciò sarebbe utile", "Clacson", "Clamorose", "Classe", "Clientela", "Cmq*", "Coccoliamo", "Coetaneo", "Coi", "Colatura", "Collana", "Collegamenti su rotaia", "Colli pallidi", "Colloqui", "Colpiscere", "Colpito", "Colpo", "Colto", "Come musica", "Come no", "Come sarebbe a dire", "Come si trova", "Come si trova in azienda", "Come stai", "Come stai facendo", "Come stesse", "Come stesse dopo la morte", "Comitive", "Commenti", "Commesso", "Compagine", "Compariva", "Comparivano", "Comparsa", "Competenti", "Compiuto", "Complemento diretto", "Componeva qui", "Comporta", "Comportamento", "Comportamento stabile e prevedibile", "Comportino", "Composto", "Comprare", "Con calma", "Con grinta", "Con le falde", "Con porto", "Con una condivisione d’uso", "Con un’affluenza", "Con vestiti scollati", "Concede", "Concessive", "Conciato male", "Concitata", "Concorrente", "Condividi", "Condivido dunque", "Condivisione", "Conducenti", "Confondere", "Congedo", "Congo", "Conosco", "Consegna", "Consegnare", "Consegnato", "Consegniamo", "Consegno previsto", "Consente", "Consentendo", "Consentirle", "Consentito", "Consigliato", "Contadini", "Contava", "Contenere", "Contenitore", "Contenuti", "Conto", "Conto al rovescio", "Contorni", "Contrassegnata", "Contrattacco", "Contrattavo", "Controllare i pneumatici", "Copertina", "Copiarmi", "Coraggiamo", "Cordidennano", "Correggo i temi", "Corriera", "Corsa", "Corti", "Cosa c’entro io?", "Cosiddette", "Costa", "Costeggiare", "Costituiti", "Costola di sirenide", "Costosissimi", "Costrette", "Costringere", "Costringeva", "Costruite anche voi delle frasi in cui", "Così ho fatto subito il bagno e ho preso il sole", "Così legata alla mamma", "Cotoletta", "Cotolette", "Cotte e unte", "Crepuscolo", "Crespi", "Creste", "Crociere", "Crolla tutto il tempio", "Crollato", "Crollava", "Cronaca", "Cronache", "Cronologia di riproduzione", "Crudo", "Cucciolata", "Cucciolo", "Cucciolotti", "Cuccú", "Cucinassi", "Cuffia", "Cui", "Culti maggiori", "Cura avesse fatto le ricerche", "Curlare", "Curlare protegge", "Curricula", "C’è da rimanere perplessi", "C’è un’epoca storica", "Da bambina", "Da gestire", "Da trattare", "Da una parte", "Dabbasso", "Dai", "Dal paraurti", "Dalle case arrivavano voci nervose", "Danno", "Dare", "Darsi", "Darsì", "Dati di nuovi", "Datore", "Dava fastidio", "Dava in smanie", "Davano", "Davanti", "Dazi", "Debba", "Decina", "Declino", "Dei guai", "Del genere", "Del tizio", "Delle tende", "Dello studio", "Deludente", "Denuncia", "Deprimo", "Destra", "Detenuta", "Determinati", "Dettate appunto", "Deve venire a ritirarlo", "Di colpo negativo", "Di farsi largo", "Di ferie", "Di gran lunga", "Di imprese che sottopongono a test", "Di impress che sottopongono", "Di la", "Di meno vistoso", "Di non poterla accontentare", "Di nuovo ma ci siamo stati domenica scorsa", "Di russo", "Di scorta", "Di tanto in tanto", "Di tendenza", "Diamo", "Diamoci", "Diceva che andare", "Dicevo", "Dieta acida", "Dietro", "Difettosa", "Dille", "Dillo", "Dimentichi", "Dimmi pure", "Diramazione", "Dire una bugia", "Direi", "Diresse", "Diresse verso", "Dirigente", "Dirigenti", "Dirigo", "Diritto", "Discariche abusive", "Discutere", "Disinnescarla", "Disoccupazione", "Disperatamente", "Dispongono", "Disporre", "Disposta", "Disposto", "Disprezzo", "Distensione", "Distillare", "Distratto", "Distrutta", "Ditte", "Diventa", "Divo", "Do il mio compiti", "Do you have", "Domanda di borsa", "Dondolava", "Dormire al chiuso", "Dormiveglia", "Dosare", "Dotti", "Dover stare", "Doveri", "Dovresti potare le siepi", "Downhill skiing", "Downstairs", "Droga", "Due settimana fa", "Dunque", "D’altronde", "D’altronde aveva sposato", "D’assunzione", "D’azzardo", "E agli esaminatori invece che consigli bisognerebbe dare", "E che cosa fate di bello? Studiate?", "E infatti guardando", "E ne pagava gli studi", "E scrollando i ricciuti capelli grigi", "E si toglieva la caramella", "E stata dura per una come te abituata", "E stato evitato", "E tagliava il sale", "Ebbene", "Eccomi", "Ecomostri", "Edilizio", "Effetto serra", "Elencate", "Emozionata", "Entra pure", "Entro il giorno", "Eolica", "Epifania", "Eppure", "Equiparandola", "Era Bella da far schifo", "Era adatta", "Era fuori casa nell’orario di consegna", "Era sorto da est", "Eravamo", "Esagerato", "Esaltare i sapori", "Esaminato il battito del cuore con un apparecchio un po malmesso", "Esaminatori", "Esatto", "Esauditi", "Esautorato", "Esce", "Eschimese", "Escursioni impegnative", "Esercitate", "Esigenza", "Especially", "Esponente", "Esporre", "Essa", "Essa è riuscita ad avvicinare la gente", "Estera", "Estero", "Estesa", "Estraeva", "Estrema destra", "Etichetta", "Fa il cazzo che gli pare", "Fa quello che le pare", "Fa scalo", "Faccende altrui", "Facci", "Faccia", "Faccia questo", "Faccio un salutino", "Facendo sbottare", "Faceva a botte", "Facevano il raccolto", "Facoltativa", "Facoltà", "Faglioni", "Fagotto", "Falla sparita", "Fammi uno squillo", "Fannullone", "Fantasmi", "Fantastico", "Fantosti", "Far fare", "Far scendere", "Farcela", "Fare un ripasso", "Fare un ripasso sistematico e attivo", "Farsi largo nel mondo", "Farti", "Fascicolo", "Fascicolo rilegati", "Fastidio", "Fastidio agli occhi", "Fate malagrazie", "Fatica", "Fatti", "Fatto", "Fattori", "Fatturato", "Favole", "Fazzoletto", "Femminuccia", "Ferie", "Ferisce", "Ferite", "Ferito", "Fermarsi", "Ferramenta", "Ferrovie", "Festeggiare", "Fiato", "Fieramente", "Filone", "Filoni", "Filtranti", "Filtri d’amore", "Fingere", "Finisce qui", "Finito", "Fino ad oggi", "Fino al pesce", "Finti", "Finto", "Finzione", "Fissarsi", "Fissata", "Fitta", "Fitta al gomito", "Foca", "Focaccia", "Folgoranti", "Fonderia", "Fondo", "Fondo fiduciario", "Fonti", "Fontina", "Forbici", "Fornello a spirito", "Fornirgliela", "Fornite", "Fornitori", "Forse fino", "Forse è stato investito in pieno", "Fortello", "Fosse", "Fossimento", "Fossimo", "Frazione", "Fregatura", "Freno", "Frequentare", "Frequentava", "Fretto", "Frugare", "Fulmine a ciel sereno", "Fumarsi", "Fumetti", "Fumetto", "Fuori bilancio", "Furgone", "Furto", "Gabbiete", "Galline", "Galo", "Galoppa", "Gamma", "Gara", "Gas di scarico", "Gasdotti", "Gelai", "Genere", "Gesso", "Gestione", "Gestiranno", "Gestirla", "Gesto", "Gimcana", "Ginnastica", "Gioconda", "Giornata", "Giorno lavoro sempre molto", "Girandola", "Giri", "Giro di vite", "Giro di vite repressivo", "Giro d’affari", "Girotondo", "Gite in montagna", "Giuro", "Giuro che è l’ultima volta che", "Giù alla marina", "Gli appassionati che assistono", "Gli arrosti", "Gli atei", "Gli avanzi", "Gli dessimo", "Gli impegni", "Gli scenari", "Gli utenti", "Glielo", "Goccia", "Goccioline", "Godere", "Godersi", "Godeva", "Goffi", "Gola", "Golpe", "Gomma", "Gradino della prima rampa", "Gradiscere", "Gradito", "Gradualità", "Grana padana", "Grana si trovava", "Grande Polo", "Grande cultura alle spalle", "Grandkids", "Granita", "Grassetto", "Gridare", "Grinta", "Guadagna", "Guadagnare", "Guadagnava", "Guadagnavo", "Guadagni", "Guanti", "Guarda ganzo, arbitrano dalla mongorfiera", "Guarigione", "Guarirai", "Guarito", "Guglia", "Gus io", "Guscio", "Gustoso", "Ha compiuto", "Ha detto che andare", "Ha già riportati oggi", "Ha provato a ribattere ma l’ha fatto confusamente", "Ha reso", "Ha sentito", "Ha torto", "Hai chiesto ai tuoi di lasciarti uscire la sera", "Hai letto", "Hai letto che sono stati ritirati dal mercato alcuni farmaci", "Hai pescato", "Hai un altro confronto?", "Hanno dovuto piangere", "Hanno fornito", "Hanno potuto trovare la pista nella neve", "Hanno regalato", "Hanno regalato al mio matrimonio", "Hanno segnato", "Ho comprato", "Ho comprato delle scarpe bellissime ma non ci cammino bene", "Ho dato", "Ho dovuto", "Ho organizzato una conferenza di venditore che comprare servizi", "Ho potuto iniziare i miei compiti ieri sera", "Ho pregato", "Ho ricevuto un avviso di mancata consegna", "Ho sentito", "Ho sentito male", "Ho spuntata", "Ho trascorso", "Ho tutto qui", "Ho visto le previsioni del tempo", "Ho voluto", "Hurting onesself", "I am excited", "I cazzi vostri", "I due stilisti propongono", "I fatti nostri", "I fuochi di artificio", "I had wanted to buy", "I have not had", "I hope to go to Italy", "I lati", "I left San Francisco for New York, where I lived for one year in 2007", "I loro agguati", "I mammoni", "I mammoni si sposino", "I manganelli", "I panni", "I presenti", "I rami", "I replied", "I saldi", "I sneezed", "I soliti posti in gradinata", "I termometri", "Ideale", "Idioma", "Idriche", "Idrogeno", "Ignorata", "Il bersaglio", "Il bilancio diventa", "Il cappellino", "Il caro vita", "Il colpo", "Il datore di lavoro", "Il diritto", "Il diritto di passarlo", "Il filo", "Il filo per stendere i panni", "Il frutto cattivo", "Il genero", "Il grande polo", "Il mondo addosso", "Il nodo", "Il numero 18 juventino", "Il pallone", "Il pil", "Il portafrutta", "Il sentiero gli pareva lungo tagliava per le linea di massima pendenza", "Il sole tutta la mattina", "Il tifo", "Il tutto mentre", "Il vate", "Il vigile sta facendo la multa", "Imbandita", "Imbellitare", "Imboccammo", "Immedesimarsi", "Immedesimarsi nei ragazzi", "Immondizia", "Impacciati", "Impara", "Impasto", "Impazzo", "Impedisce", "Impegnate", "Impegnative", "Impegno", "Impermeabile", "Imperversa", "Impiegare", "Impiegata", "Impiegato", "Impiego in azienda", "Imporre", "Imprenditore", "Imprese", "Impressionante", "Imprevedibilità", "Imprevisto", "In albergo a gestione familiare", "In allegato", "In attesa", "In coda", "In fondo", "In fondo ognuno", "In genere cerco di stare", "In giro", "In gradinata", "In grado", "In grado di guardare", "In ordine la casa", "In practical illustration cervello dei bambini fino ai tre anni", "In sala", "In salita", "In segno", "Inatteso", "Incarico", "Incassarlo", "Incolla", "Incollerito", "Incontenibile", "Incontrando", "Incontrato", "Incoscienti giovani", "Incrociano", "Incrociate", "Indagine", "Indennità", "Indetta", "Indice di coscienza civile", "Indietro", "Indiscrezioni", "Indizi collegati", "Indomani", "Indossavamo il grembiulino", "Infastidiva", "Infatti", "Infilava", "Infili nei fatti nostri", "Infimo", "Ingannarla", "Ingannato", "Ingombrante", "Ingorghi", "Ingrippate", "Ingrippati", "Ingrippatte", "Inizio alle danze", "Innaffiare", "Innanzitutto", "Innervosicano", "Inoltre", "Inquadrare", "Inquadratura", "Inquinerà", "Insalata mista", "Insegna", "Insegna storia della scienza", "Inserire", "Inserire la tessera", "Inserita", "Insomma", "Insomma: ho preso", "Insopportabile", "Intanto", "Intanto stabilire", "Interista", "Interpreta", "Interroga", "Interrompere", "Intesa", "Intimorite", "Intorno", "Intrapreso", "Intreccio", "Invano", "Invece", "Investito in pieno", "Invieremo", "Io faccio aprire la finestra a qualcuno", "Io faccio scrivere una lettera ai genitori dallo studente", "Io faccio scrivere una lettera allo studente", "Ironici", "Irosamente", "Irruzione", "Iscritto", "It’s not fair", "John sfotte Rick", "Juventino", "Kermesse", "La bimba del babbo", "La bolletta", "La bozza", "La delega", "La divoro", "La finite di litigare", "La frutta cattiva", "La gamma", "La gita", "La gravidanza é considerata il male peggiore", "La lotta", "La mancia", "La minestra", "La notte in bianco", "La padrona dei sale", "La padrona del sale", "La padrona sei sale", "La pasta fatta", "La penserai", "La perde", "La pianti con", "La polemica", "La prego", "La puoi ritornare", "La raccolta", "La razio", "La relazione", "La salaria", "La scolaresca in gita", "La scopava", "La sesta", "La spallata", "La spallata definitiva", "La tale", "La tale principessa", "La tendeva", "La tenuta", "La vicenda", "Ladruncolo", "Lamentosa", "Lampioni", "Lampone", "Lanciare ululati buttandosi giù per i nevai", "Lanciata", "Lanciato", "Lancio", "Lanciò", "Lapide", "Lapide di marmo", "Largo", "Largo anticipo", "Lastrone", "Lavagna", "Lavagnetta", "Lavandino", "Lavarmi i denti", "Lavarti i denti", "Lavorare stanca", "Lavoro nero", "Le Immobiliari sono andate giù", "Le carte", "Le cifre", "Le classi di banchi completamente nuovi", "Le cure del", "Le fanno la corte", "Le fauci", "Le foglie", "Le lampade a sfera", "Le pale eoliche", "Le paludi", "Le pare il modo di lavorare questo", "Le penserai", "Le perdite", "Le pere", "Le pre il modo di lavorare questo", "Le righe", "Le righe dei parcheggi", "Le riviste", "Le rughe", "Le scavava", "Le schiene dei villeggianti erano sul rosso", "Le stoffe", "Le strisce", "Le stuffe", "Le triglie", "Le unghie", "Leccare", "Leccate", "Legame", "Legare", "Legata", "Legate", "Legato", "Lei è in grado", "Lei è una corritrice", "Lessico", "Letto", "Levare", "Levarsi", "Levarsi le scarpe in salotto", "Levati", "Levati questa roba di dosso", "Lightning", "Limpido", "Lista di morte", "Lo giuro", "Lo rifarei", "Lo sai che ci tiene", "Lo sai che tiene", "Lo sai com’è fatta", "Lo scambio", "Lo sguardo", "Lo spettacolo sta per cominciare", "Lo spezza", "Lo stupore", "Logore", "Loro compreranno", "Loro mosse", "Losco", "Lui sì che era un viaggiatore", "Lui è un corridore", "Luna di miele", "Lundi", "Lunedì sopra", "Luogo", "Luogo tombale", "Lupara", "L’abbiocco", "L’amante", "L’aria della moda", "L’astuccio! La colla", "L’avrei preso all’epoca", "L’estate corsa", "L’estraeva e me la tendeva, facevo lo stesso", "L’ho abbracciato", "L’ho preso io", "L’ho visto da voi in soggiorno", "L’imputato", "L’invito filtrante di tevez", "L’istruzione pubblica è una voce", "L’italiano ai tempi di Facebook è promosso", "L’obiezone", "L’ora di postare", "L’ora di religione", "L’ultima lite", "Ma mi capita spesso di incontrare volti familiari", "Ma neopatentato", "Ma piove", "Ma quante rose le hai regalato", "Ma quanto male fa", "Ma sono arrivata lì verso le nove", "Macchiare", "Macchiarsi", "Macedonia", "Maestrale", "Maga", "Magari", "Magari lo prendiamo fuori", "Magia", "Mail", "Maledetta", "Malignazze", "Malinteso", "Mancherebbe", "Manchino", "Mandioca", "Maneggio", "Mangiabile", "Manicaretti", "Maniche", "Manovra", "Mansione", "Mansioni", "Marciapiede", "Marinaio", "Mark will give your address to me not him", "Martino", "Massaggio shiatsu", "Materiali di scambio", "Materie scientifiche", "Matite", "Mattiniero", "Mattino", "Matto", "Mattone", "May the fourth", "May the wolf die", "Mazza", "Mazzette", "Mazzi", "Mazzonica", "Me li ho comprati tre pacchi", "Me lo presti", "Meno evidente", "Mensola", "Menzogna", "Mercosur", "Mercosur e bancarotta idrica", "Merenda", "Merende", "Merlino", "Merlo", "Messi", "Messo", "Mestiere", "Mestolo", "Mete turistiche", "Mettere la freccia", "Mettere le corna", "Mettersi in proprio", "Mezza costa", "Mezzadri", "Mezzi", "Mi Avevi voluto cucinare", "Mi Ha sempre appassionato", "Mi capita", "Mi dia l’indirizzo esatto", "Mi dispiace", "Mi ero stufato delle cazzate", "Mi fa pena", "Mi gelai di paura", "Mi ha dato un calcio", "Mi hai dovuto chiesto", "Mi pare", "Mi pareva", "Mi pesa", "Mi prendono", "Mi sento colpa", "Mi sento scossa", "Mi sfugge", "Mi sono alzata presto e mi sono messa in macchina", "Mi sono messo in ginocchio", "Mi sono spiegato", "Mi sono sporcata con la torta, accidenti", "Mi stanno larghi", "Mi tocca", "Mi tocca andare a piedi", "Mi tolgo", "Mi è cara", "Mica", "Mica un impiastro come siete voialtri", "Michelin", "Migliaia", "Migliaiai", "Mihi", "Minestra", "Mirino", "Mirtillo", "Miti", "Modo di dire", "Mollami", "Mollato", "Mollo", "Mollo la borsa", "Molto azzeccato", "Molto male", "Molto ricercata", "Mondanita", "Mondiali di calcio", "Morbosa", "Mordeva", "Morire di sete", "Mormorio", "Morti bianche", "Moscardini", "Mossa", "Mostrare", "Mostrarla", "Mulino", "Mulo", "Multa", "Mutande", "M’importasse", "M’è rimasta l’impressione della spalla che strisciava", "Nascita", "Nascondeva", "Nastro", "Ne disperava", "Negrigure", "Nei panni", "Nei prati", "Nei suoi confronti", "Nel", "Nel vedere che spesso il dialogo", "Nella fascia", "Nella fascia di età", "Nell’arco", "Nemmeno", "Neomorfo", "Netto", "Netturbino", "Nicchia", "Nido", "Nitida", "Noce", "Nocività", "Noia", "Noleggiato", "Noleggio", "Non Si fa gli affari suoi", "Non avrebbe dubbi sulla risposta", "Non dare retta", "Non date loro retta", "Non dovevi", "Non era fatto la spesa", "Non esiste", "Non facevano una sega", "Non fare complimenti", "Non fate malagrazie", "Non ne abbiamo voglia", "Non occorre", "Non occorre nemmeno andare tanto in alto", "Non pensieri", "Non regge", "Non riesco ad aprire l’articolo", "Non rompere", "Non si aspettava neanche lui", "Non si fanno", "Non si tratta", "Non si è fatta vedere", "Non siete gente da portare nei loghi", "Non sono andata a vederla", "Non sono stati", "Non tanto di non sposarsi", "Non ti rendi conto", "Non vorrete mica", "Non è un costo in più", "Nota casa", "Nozze", "Nullatenente", "Officina", "Oggetto pubblicitario", "Oggi Sandro si tocca", "Oggi Sandro si tocca studiare", "Oggi ci sono 30 gradi", "Oggi è pari", "Oltre a lei", "Omaccione", "Omertà", "Oppure camminava di notte, sbadato, forse è stato investito in pieno", "Oppure può darsì", "Orari", "Ordine", "Ormai", "Oro", "Orticello", "Ostacolava", "Ostacoli", "Otopia", "Ottenere", "Ottenuto", "Ovale", "Oziare", "Paccheri", "Pacchetto", "Pachi", "Pachino", "Pagamento", "Paghi peno", "Palazzo gestito", "Paleggia", "Palestra", "Palla", "Panni", "Pantita", "Pantosti", "Papera", "Papà se la scopava", "Paragonare", "Paragonata", "Paragoni", "Paragono", "Pare", "Parere", "Parioli", "Parlane", "Parlare a vanvera", "Parlino", "Parrucchiere", "Partenza", "Partenza via", "Partenze", "Partiti", "Partito", "Partivano", "Pasdaran", "Passa la delega al governo", "Passante", "Passato", "Pasticca", "Pasticcini", "Pasticcio", "Pasticcio ammuffito", "Pattinava", "Patto", "Pavone", "Pazzerella", "Pazzesca", "Pazzesco", "Pazzia", "Pediatra", "Pedonali", "Pendio", "Pendono", "Pensa agli abissi", "Pensarci bene", "Pensavo esserti salvato", "Pensieri", "Pensiero", "Penso che loro vogliano sapere chi l’ho fatto", "Pentita", "Pentola", "Per cortesia", "Per farmi mangiare", "Per noi e per sè", "Per via dei quattrini", "Percepisce", "Percepito", "Perché non si fa gli affari suoi", "Perché siccome", "Perché, rimasto vedevo , ed essendosi", "Perdendosi", "Perdere", "Perfino", "Permaloso", "Persino", "Pertanto", "Però lo avevamo capito tutti che", "Però se ne è dimenticato", "Pesante", "Pesca", "Pesca + goccioline", "Pescecane", "Petroliferi", "Pettegolezzi", "Pettegolezzo", "Phon, tosti", "Piacquero", "Piadina", "Piagnona", "Piano piano", "Piantare in asso", "Piantarla", "Piazzaletto", "Piazzano", "Picchiarsi", "Picco", "Piccola palla", "Pieghe", "Pienone", "Pietanze", "Pietanze cotte e unte", "Pigro", "Pil", "Pilastro di ametista", "Pioggia", "Piove", "Piovere", "Piscia", "Pistacchio", "Pistola", "Pittore", "Piumone", "Piuttosto", "Più diffuso", "Più troppo", "Platano", "Platano libero", "Poche", "Poche ore partirò", "Pochissima volta", "Poco adatta", "Poco incline", "Poi", "Poi chiedo il conto", "Polvere", "Polvere da sparo", "Pone", "Ponessimo", "Porosità", "Porre", "Porre in atto", "Portacenere", "Portare nei loghi", "Portatile", "Portone", "Portoresi", "Posata", "Posate, cannucce, bastoncini", "Possiedono", "Posso andarci", "Postacci", "Posticino", "Posò", "Potacci", "Poteva soffrire", "Potrebbe far vedere", "Potrebbe portare un altro prezzo", "Poverina", "Praticantato", "Precari", "Prede", "Prefisso", "Premere", "Premessa", "Prende", "Prendere", "Prendere in affitto", "Prendere integratori alimentari", "Prendere un buon voto", "Prendo", "Prendono", "Prenotare", "Presa da un attacco di collera", "Presepe", "Preside", "Preso", "Preso un trenta", "Pressione trampiane", "Pressioni", "Pressoché", "Prestare", "Prestare più", "Prestiti", "Presupporre", "Pretendiamo", "Prevede", "Prevedibile", "Prevista", "Pro capite superiore", "Pro loco", "Procinto di", "Proiettile", "Promosso", "Propizio", "Proporre", "Proposti", "Proscritta", "Proseguendo in falsopiano", "Proseguire", "Protezioni care a mia madre", "Prova", "Provare", "Provenienza", "Provi a dire", "Provino", "Prua", "Prudenti", "Psicofisico", "Pumpkin day", "Puntata", "Punteggia", "Puntini rossi", "Puntura", "Puoi", "Puoi la ritornare", "Pur temendo", "Purché", "Pure", "Pure di notte", "Pure di notte?", "Purtroppo", "Putroppo", "Puzzare", "Puzzi di sudore", "Può darsi", "Può darsi che", "Quadretti", "Quadri", "Qualche quadro", "Quando ci spedirete", "Quando compra un gelato prende almeno un gusto di crema", "Quando uscirete con", "Quando vi riporta i temi", "Quando vi riporta i temi dí matematica", "Quanto a mio padre se ne stava a leggere", "Quanto siete andati al contenuto", "Quattrini", "Quel divo dello schermo", "Quel volto noto", "Quella della Crusca é la più rinomata", "Quella diva", "Querela", "Questa frase scompiglia", "Questa notizia l’ho letta", "Questa settimana scorsa ho lavorato tanto", "Questi incontri spezzano", "Questi tappeti", "Questo lavoro non è andato a te", "Questo quadro", "Questo quadro me li hanno regalato al mio matrimonio", "Qui a Roma", "Quindi", "Raccoglie", "Raccogliere", "Raccoglievano", "Raccolta", "Raccolta differenziata", "Raccolti", "Racconto", "Raffiche", "Rafforzare", "Rafforzare le doze dell’ordine", "Rafforzato da lutto", "Ragazzoni seduti", "Raggi", "Raggio", "Raggiunta", "Ragioniere calcola trattenute", "Rallegrata", "Rallentato", "Rame", "Rane", "Rapa", "Razzismo", "Reagisce", "Reagito", "Realizzabile", "Recapitava", "Recensioni", "Reclamare", "Recupero", "Regala ora", "Reggere", "Reggiseni", "Regola sociale", "Relazione", "Rendimento", "Rendo conto", "Respinge", "Resta un tabù", "Resteranno", "Restituirci", "Rete", "Retroscena", "Rettore", "Riaddestrata", "Riassunti", "Riassunto", "Riassuto", "Ribadita", "Ribaltava", "Ribattere", "Ricaricare", "Ricatto", "Ricatto disumano", "Ricciuti", "Richiamarne", "Richiede", "Richiesta", "Richieste", "Riciclaggio", "Ricompensa", "Ricordi", "Ricoverato", "Ridare", "Rido", "Ridotto", "Riduca", "Riecheggia", "Riempire", "Rifarsi", "Rifocillarvi", "Rigonfio", "Rilanciare sulla dote", "Rilasciando interviste", "Rilasciata", "Rimandano solo a perdite", "Rimandere", "Rimasto", "Rimasto vedevo", "Rimbambito", "Rimpianti", "Rimpiazzare", "Rimproverarmi", "Rimproverati", "Ringrazia", "Ringraziamente", "Ringraziamento", "Ringrazio", "Rinnovabile", "Rinnovare", "Rintraccia", "Rinvio", "Rio secco", "Ripensandoci", "Ripensato", "Ripensava", "Ripente", "Ripentente", "Ripetente", "Ripiano", "Ripida", "Riprendere", "Ripugnante", "Risaltava", "Risparmiare", "Rispettivi", "Risultava bagnato al tatto", "Ritenere", "Ritengono", "Riteniamo", "Ritirare", "Ritirare la posta", "Ritirarlo", "Ritirato", "Rito sociale", "Ritratto", "Ritrova", "Riuscire a fare qualcosa", "Riusciti a completare l’accesso", "Rivendicato", "Rivista", "Roba", "Roba da matti", "Roccaforte", "Rompere", "Ronzio", "Rotocalco televiso", "Rottura", "Rovesciamo", "Rovescio", "Rovinati", "Rovine", "Rubalo", "Ruggine", "Rugginosa", "Rumore", "Ruota libera", "Rupe", "Sabbia", "Sacrilegious", "Salendo", "Salgo", "Sali", "Salimmo", "Salita", "Saliva", "Saliva senza dosare le forze", "Salivano", "Salivare", "Sarei andata", "Sarò padrona", "Sarò padrona di regalare quello che voglio a chi voglio", "Sassari", "Sbadato", "Sbadigliava in faccia", "Sbagliare", "Sbalordito", "Sbatte", "Sbirri", "Sborsare", "Sbottare", "Sbrodeghezzi", "Sbucciature", "Scaduto", "Scaffali", "Scalini", "Scambi", "Scambio", "Scambismo leggero", "Scamorza", "Scappare", "Scarpe", "Scarpette", "Scattare", "Scattare alla cantante", "Scattato", "Scatti", "Scavare una buca", "Scegli", "Scelto", "Scendere", "Scendessero", "Scendi", "Scesa", "Scherzando", "Scherzertini", "Schiaccia", "Schiacciante", "Schiacciarle", "Schiavo", "Schiavo vostro", "Schiede", "Schiene", "Schifo", "Sci di fondo", "Sciame", "Sciao vostro", "Sciare", "Sciavo", "Scioccanti", "Scioglimento", "Sciopero", "Sciorinate", "Scioserali", "Scire", "Scire chimiche", "Scirocco", "Scolare", "Scolate", "Scommetterei", "Scomodo", "Scomparire", "Scomparsa", "Scompiglia", "Sconcertante", "Sconfiggere", "Sconfitta", "Sconto", "Scontrato", "Scontri del collettivo", "Scoperto", "Scopiono", "Scoppiare", "Scoprire", "Scorta", "Scortese", "Scossa", "Scotte", "Scrittura", "Scrivete", "Scrollando", "Scrostato", "Scudetto", "Scuola diurna", "Scuotere", "Se", "Se fate qualche prova", "Se la cava", "Se la prende per qualsiasi cosa", "Se ne", "Se ne disperava", "Se può", "Sebbene", "Secchione", "Secolo", "Secondo un mio vizio", "Sede", "Sedia", "Sedurre", "Seggi", "Segno", "Sei dimenticato di nuovo", "Sei partita presto come al solito", "Semaforo", "Sembra una tosta", "Seminarli", "Sempio", "Sentendomi", "Sentendomi scombinata", "Sentirmi spinta", "Sentite qui", "Senza fili", "Senz’altro", "Serrate", "Servizio consegne", "Sfarzosissima", "Sfera", "Sfida", "Sfilate", "Sfiorato", "Sfoggino", "Sfoggino abiti firmati", "Sfoglia", "Sfondo", "Sforna", "Sforzo", "Sfregio", "Sfrenata", "Sfrenata già alle spalle", "Sfruttare", "Sfuma", "Sfumature", "Sganciato", "Sgancio la ferraglia", "Sgarbi", "Sgarbo", "Sgualcire", "Sguardo", "Sguinzaglio", "She left her phone", "She read", "Si alzo", "Si arrende", "Si augurano", "Si diffonde", "Si era già arrangiato da soli", "Si era rivolto persino", "Si impegna", "Si impegnano", "Si ottengono", "Si piazzano", "Si prevede", "Si ritiene", "Si svuota", "Si tratta", "Si trattava", "Si tratti di un disguido", "Si trovava", "Si tuffa", "Si verifica", "Si è iscritto", "Si é parlato pochissima volta", "Sia così rigido da non far venir voglia di assumere una donna", "Sia pure minimo", "Sia rimasto senza benzina", "Siamo potuti lasciare il ristorante dopo abbiamo pagato", "Siamo usciti tutti interi", "Siate vivaci", "Siccità", "Siccome", "Siete", "Sigillata", "Simulazione palese", "Sin", "Sin dai", "Sindaca", "Sindacale", "Singhiozzi", "Sino", "Sintesi", "Sistemato", "Sistemavano", "Sistemazione in ostello", "Situazione sentimentale", "Slegami", "Smanie", "Smantellata", "Smentire", "Smettere", "Sminuendo", "Smorto", "Snaturato", "Snocciolato", "Sobbalzai", "Società finanziate", "Soffegito", "Soglia", "Sognare", "Sogni", "Sogno", "Solcata", "Solco", "Solco amaro", "Soleva", "Soleva commentare", "Soliti noti", "Solletico", "Sollevata", "Solo traffici e sperperi", "Sommo", "Sondaggi", "Sonno", "Sono dicendo", "Sono lieto", "Sono partito", "Sono potuto correre", "Sono serrate", "Sono tentata", "Sono un corridore", "Sono vani", "Sopracciglia", "Soprannome", "Sorvegliavano", "Sorvolato", "Sospiro", "Sostanivi", "Soste", "Sostenere", "Sostenitore", "Sostiene", "Sostiere", "Sottile", "Sottolineando", "Sottopongono", "Sottoporrà", "Sottovalutino", "Sottrarla", "Spaccatura", "Spada", "Spalancò", "Spalla", "Spalleggerà", "Spallucce", "Sparando", "Sparato", "Sparatoie", "Spari", "Sparisce", "Sparito", "Sparo", "Spavalderia", "Spaventare", "Spazio", "Spazzatura", "Spazzola", "Specie", "Spedirò", "Spedizioni", "Spegne", "Spegni", "Spelata", "Spero", "Spesa carica di libri portati", "Spesso", "Spetta", "Spezzano", "Spianato", "Spianato il Camino", "Spianato il cammino", "Spilla francese", "Spinta", "Spionaggio", "Spira", "Spirare", "Spiro", "Splendido sfondo sfocato toccato", "Spogli", "Spontanea volontà", "Spossante", "Spostamenti", "Spostarsi", "Spostati", "Sprofondare", "Spruzzata", "Spunrarla", "Spuntano", "Spuntare", "Spuntarla", "Spunti", "Squillo", "Sta minacciando", "Stabilito", "Staccare", "Staccato", "Staccava", "Stai minacciando", "Stai zitti", "Stampelle", "Stanchezza", "Stanno minacciando", "Stare sveglio fino a tardi", "Starnutire", "Starò", "State minacciando", "Stati d’animo", "Stati ritirati", "Stato sociale", "Stava", "Stavano falciando il fieno", "Stendere", "Sterrata", "Stessi", "Stia minacciando", "Stiamo minacciando", "Stilista", "Stilografica", "Stimmate", "Sto minacciando", "Stoffe morbide", "Stop us", "Stordisce", "Stordito", "Strage", "Straniero", "Stravaganti e dissacranti", "Stretti", "Strisciava", "Stroncato", "Stufato", "Stufe", "Stufo", "Stupenda", "Stuzzicava", "Su prato", "Su venerdì", "Subire", "Successivamente", "Succhiato", "Sudata", "Sudo", "Suggerimento", "Sui prati", "Sul portone", "Sull’orlo", "Suocera", "Suora Laica", "Superandola si addolciva", "Superare", "Superatiti", "Superato", "Supero", "Superstiti", "Supporre", "Surgelato", "Surriscaldamento", "Suscita il fascino", "Suscitato", "Sussidio", "Svaghi", "Svasate", "Svelare", "Sveliamo", "Svevo", "Sviluppatore", "Sviluppo", "Svolge", "Svolgeranno", "Svolta", "Sì Svuota", "Sì sì come no", "Sì è tolta la vita", "S’affacciava", "S’infilava sotto pelle", "TG", "Taccio", "Taglia", "Tagliarmi le vene", "Tagliati", "Tale", "Talmente tanto", "Talpa", "Tanto che", "Tappe giornaliere", "Targa è pari", "Targhe alterne", "Tariffa", "Tasso", "Tasto", "Tatuaggi", "Te la levi ora", "Te lo riporto", "Te ne invio", "Tegola", "Televendita", "Temuto", "Tende", "Tendono i loro agguati", "Tension I loro agguati", "Tentare", "Tentativo di ridicolizzarla", "Teppista", "Terranno", "Testarda", "Testata", "Ti amo da morire", "Ti ha definito", "Ti ha già detto", "Ti ho dato per disperso", "Ti marco stretta", "Ti mi avevi voluto cucinare", "Ti muovi", "Ti muovi perdi", "Ti piacerebbe", "Ti riguarda", "Ti sei pentita", "Tifosi si erano seduti nelle tribune", "Tifoso", "Timbri", "Tintinnio", "Tira la palla", "Tirata", "Tirava", "Tirocini", "Tirocinio", "Titolo cattivo", "Tizio", "To fight", "Tocca", "Toglierti dal cazzo e sparire", "Toglimi", "Tolgono", "Tolto", "Tombale", "Toni duri", "Torna domani", "Tornati", "Tosti", "Totani", "Tovaglia", "Tovaglioli", "Tozzi", "Tra l’altro", "Tradimento", "Tradire", "Traghetto", "Training autogeno", "Tramezzino", "Tramonto", "Trampiani", "Trapelate", "Trapianto", "Trascorrere", "Trascurate", "Trasferire", "Trasferiti", "Trasferito", "Trasognato", "Tratta", "Tratta di come", "Trattare", "Trattarsi", "Trattativa", "Trattieni", "Tratto", "Trecce", "Trenta e lode", "Trentesimo della ripresa", "Tresca", "Tribune", "Trottole", "Trova", "Trovare", "Trovarsele", "Trovarsele tra le mani", "Truccarsi", "Truffatore", "Tuonare", "Tutelare", "Tutta d’un tratto", "Tuttavia", "Tutti e quattro", "Tutti interi", "Tutto a posto", "Tutto iniziò così", "Tutt’altro che bella", "Uga e Ada avranno dovuto una matrimoniale", "Un accento inutile", "Un assegno scoperto", "Un attimo", "Un cavo", "Un conte", "Un conte è una serata epocale", "Un crollo", "Un c’ero mia io a arbitra", "Un figlio a testa", "Un giro", "Un lastrone sì e uno no del marciapiede", "Un messaggio pubblicitario", "Un modo leggero", "Un no molto netto", "Un patrimonio", "Un posticino così poetico", "Un rene", "Un salto di qualità", "Un salto di qualità nei confronti di tutti quanti", "Un settimanale scandalistico", "Un suo futuro", "Un sussulto", "Un velluto ovale", "Una baraonda", "Una caccia", "Una collattuzione corpo a corpo", "Una corsa", "Una fata", "Una fatica inutile", "Una gita", "Una gregge di pecore", "Una lavagna", "Una novità", "Una posata Ingombrante", "Una sega", "Una settimana prima della partenza", "Una terribile tragedia imperversa", "Unirsi", "Unisci", "Uova sode", "Urlare", "Urne", "Usa e getta", "Uscire spesso", "Uscirete", "Utile", "Va bene", "Va bene cosi", "Va bene così", "Vabbè", "Vacca", "Vado frettò", "Vado in frettò", "Vale a dire", "Valgono", "Valli", "Vampa", "Van Tosti", "Vassoio", "Vattene", "Ve ne parlo", "Veggente", "Veglia", "Vela", "Velluto", "Vendita", "Venga", "Vengo", "Venivano materiali", "Venta media", "Ventina", "Ventina di giorni", "Veracità", "Vercellese", "Vergogno", "Veridicità", "Verrebbe", "Versava", "Verso", "Verso le lezione", "Vertici", "Vetro", "Vetro, ortica, ma vivo", "Via", "Viaggio sempre", "Vicenda", "Vicende", "Viene", "Vieni, sali", "Vietato fermarsi", "Vigente", "Vigili multavano", "Vincere", "Vincoli", "Vincotto", "Virgola", "Virgoletta", "Visualizzazioni", "Vitello", "Vizio", "Voglia", "Voialtri", "Volantino", "Volentieri", "Voleva uscita", "Volgere", "Volli esaminare se", "Voltava sul fianco", "Volti", "Volto", "Vorrebbe", "Vorrei", "Vorrei ancora", "Vuota", "Vuoto", "We are going downhill skiing", "We had to bring the proposal up for a vote", "We wanted the day to be sunny but it was rainy", "We were able to leave the restaurant after we paid", "We will be", "We will send pictures of Naples", "Yeah", "You are interested", "You had to stay in the house", "Zaino", "Zaporizhzhia", "Zappavano", "Zoppicare", "Zucca", "Zucchero a quadretti", "a cui", "abbiamo scrutato", "avvertita", "confronto", "debba appartenere", "doveroso prendere sul serio Trump", "esercitare", "grazie per averci informato", "interagiscono", "inzuppavamo", "la stanza dei bottoni", "macchiato", "nocciola", "non vuole essere spento", "pranzino", "riconnettersi", "rivela", "rivendicazione", "riversate", "sfacelo", "stata udita a", "uscire", "È impegnato", "È successa una cosa brutta proprio un fattaccio", "È un libro da leggere subito", "È vantato", "È velleitario", "È vietato", "É addirittura venuto il sospetto", "É disposto a tutto", "É legato", "É partita", "É partita dai commercianti", "è chiaro che", "“appunto"];
+
+let results = [];
+let currentBatch = 0;
+let paused = false;
+let running = false;
+const totalBatches = Math.ceil(ALL_ITEMS.length / BATCH_SIZE);
+
+// Load saved progress
+function loadProgress() {
+  try {
+    const saved = localStorage.getItem('voc_processor_results');
+    const savedBatch = localStorage.getItem('voc_processor_batch');
+    if (saved) {
+      results = JSON.parse(saved);
+      currentBatch = parseInt(savedBatch) || 0;
+      renderOutput();
+      log(`Resumed from batch ${currentBatch} with ${results.length} results saved.`, 'good');
+    }
+  } catch(e) {}
+  document.getElementById('batch-count').textContent = totalBatches;
+  updateProgress();
+}
+
+function saveProgress() {
+  try {
+    localStorage.setItem('voc_processor_results', JSON.stringify(results));
+    localStorage.setItem('voc_processor_batch', currentBatch.toString());
+  } catch(e) {}
+}
+
+function clearResults() {
+  if (!confirm('Clear all saved results and start over?')) return;
+  results = [];
+  currentBatch = 0;
+  localStorage.removeItem('voc_processor_results');
+  localStorage.removeItem('voc_processor_batch');
+  document.getElementById('output').value = '';
+  document.getElementById('result-count').textContent = '';
+  updateProgress();
+  log('Results cleared. Ready to start.', 'entry');
+}
+
+function log(msg, cls = 'entry') {
+  const div = document.getElementById('log');
+  const line = document.createElement('div');
+  line.className = `entry ${cls}`;
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  div.appendChild(line);
+  div.scrollTop = div.scrollHeight;
+}
+
+function updateProgress() {
+  const pct = totalBatches > 0 ? (currentBatch / totalBatches) * 100 : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${currentBatch} / ${totalBatches} batches complete`;
+}
+
+async function startProcessing() {
+  if (running) return;
+  running = true;
+  paused = false;
+  document.getElementById('start-btn').disabled = true;
+  document.getElementById('pause-btn').disabled = false;
+  document.getElementById('status-text').textContent = 'Running…';
+
+  while (currentBatch < totalBatches && !paused) {
+    const start = currentBatch * BATCH_SIZE;
+    const batch = ALL_ITEMS.slice(start, start + BATCH_SIZE);
+    log(`Processing batch ${currentBatch + 1}/${totalBatches} (${batch.length} items)…`);
+
+    try {
+      const newWords = await processBatch(batch);
+      results.push(...newWords);
+      currentBatch++;
+      saveProgress();
+      updateProgress();
+      renderOutput();
+      log(`✓ Batch ${currentBatch} done — ${newWords.length} words kept`, 'good');
+    } catch(err) {
+      log(`✗ Batch ${currentBatch + 1} failed: ${err.message}. Retrying in 5s…`, 'err');
+      await sleep(5000);
+      // retry once
+      try {
+        const newWords = await processBatch(batch);
+        results.push(...newWords);
+        currentBatch++;
+        saveProgress();
+        updateProgress();
+        renderOutput();
+        log(`✓ Batch ${currentBatch} retry succeeded — ${newWords.length} words kept`, 'good');
+      } catch(err2) {
+        log(`✗ Batch ${currentBatch + 1} failed again, skipping: ${err2.message}`, 'err');
+        currentBatch++;
+      }
+    }
+
+    // small delay between batches to avoid rate limits
+    if (currentBatch < totalBatches && !paused) await sleep(800);
+  }
+
+  running = false;
+  document.getElementById('start-btn').disabled = false;
+  document.getElementById('pause-btn').disabled = true;
+
+  if (currentBatch >= totalBatches) {
+    document.getElementById('status-text').textContent = 'Complete!';
+    log(`🎉 All done! ${results.length} words generated across ${totalBatches} batches.`, 'good');
+  } else {
+    document.getElementById('status-text').textContent = 'Paused';
+    log('Paused. Click Start to resume.', 'entry');
+  }
+}
+
+async function processBatch(items) {
+  const prompt = `You are an expert Italian language teacher curating a B2/C1 vocabulary flashcard app.
+
+I will give you a list of Italian words, phrases, and sentences from a learner's translation history. Your job is to:
+
+1. KEEP items that are genuinely useful for a B2/C1 learner: interesting vocabulary, idiomatic expressions, useful phrases, or grammatical constructions worth studying.
+2. SKIP items that are: A1/A2 level basics, garbled/typo-ridden nonsense, proper nouns (people/place names), English words, overly crude/offensive, highly specific one-off sentences with no reusable value, or conjugated verb forms where the infinitive would be more useful.
+3. For KEPT items, clean up minor typos, and provide the infinitive form for verbs when appropriate.
+4. Generate a natural, contextual Italian example sentence for each kept item.
+
+Return ONLY valid JSON — no markdown, no explanation:
+{
+  "words": [
+    {
+      "word": "the Italian word or phrase (cleaned)",
+      "type": "verbo | sostantivo | aggettivo | avverbio | espressione | frase | esclamazione | congiunzione | preposizione",
+      "pron": "syl·la·ble·dot·ted pronunciation with stress accent on stressed syllable",
+      "example": "A natural Italian sentence using the word/phrase in context."
+    }
+  ]
+}
+
+Items to evaluate:
+${items.map((x, i) => `${i+1}. ${x}`).join('\n')}`;
+
+  const resp = await fetch(PROXY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-5',
+      max_tokens: 4000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+
+  const text = data.content?.find(b => b.type === 'text')?.text || '{}';
+  const clean = text.replace(/```json|```/g, '').trim();
+  const parsed = JSON.parse(clean);
+  return parsed.words || [];
+}
+
+function renderOutput() {
+  if (results.length === 0) return;
+  const lines = results.map(w => {
+    const word = (w.word || '').replace(/'/g, "\\'");
+    const type = (w.type || '').replace(/'/g, "\\'");
+    const pron = (w.pron || '').replace(/'/g, "\\'");
+    const example = (w.example || '').replace(/'/g, "\\'");
+    return `  { word: '${word}', type: '${type}', pron: '${pron}', example: '${example}' },`;
+  });
+  document.getElementById('output').value = lines.join('\n');
+  document.getElementById('result-count').textContent = `${results.length} entries ready to paste into wordBank`;
+}
+
+function copyOutput() {
+  const ta = document.getElementById('output');
+  ta.select();
+  document.execCommand('copy');
+  const btn = document.querySelector('.copy-btn');
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = 'Copy all', 2000);
+}
+
+function togglePause() {
+  paused = !paused;
+  document.getElementById('pause-btn').textContent = paused ? 'Resume' : 'Pause';
+  if (!paused && !running) startProcessing();
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+loadProgress();
+</script>
+</body>
+</html>
