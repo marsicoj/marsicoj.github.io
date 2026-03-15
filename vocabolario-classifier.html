@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocabolario Classifier</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1208;
+    --paper: #f5f0e8;
+    --cream: #ede6d6;
+    --rust: #b5451b;
+    --sage: #5a7a5c;
+    --gold: #c8972a;
+    --mist: #8a9ba8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    padding: 40px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(26,18,8,0.04) 27px, rgba(26,18,8,0.04) 28px);
+  }
+  .container { width: 100%; max-width: 780px; }
+  h1 { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; font-style: italic; color: var(--rust); margin-bottom: 6px; }
+  .subtitle { font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mist); margin-bottom: 32px; }
+  .warning { background: #fff8f0; border: 1px solid rgba(181,69,27,0.3); padding: 14px 18px; font-size: 0.65rem; line-height: 1.7; margin-bottom: 24px; color: var(--ink); }
+  .warning strong { color: var(--rust); }
+  .step { margin-bottom: 28px; }
+  .step-label { font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mist); margin-bottom: 10px; }
+  .upload-zone {
+    border: 1px dashed rgba(26,18,8,0.25);
+    padding: 28px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+  }
+  .upload-zone:hover { border-color: var(--rust); }
+  .upload-zone input { display: none; }
+  .upload-zone .uz-label { font-size: 0.7rem; color: var(--mist); }
+  .upload-zone .uz-name { font-size: 0.75rem; color: var(--sage); margin-top: 8px; display: none; }
+  .status-box { background: white; border: 1px solid rgba(26,18,8,0.12); padding: 20px 24px; margin-bottom: 20px; }
+  .status-line { font-size: 0.7rem; color: var(--ink); margin-bottom: 6px; }
+  .status-line span { color: var(--rust); }
+  .progress-track { width: 100%; height: 3px; background: rgba(26,18,8,0.1); margin: 14px 0 6px; }
+  .progress-fill { height: 100%; background: var(--rust); transition: width 0.4s ease; width: 0%; }
+  .progress-label { font-size: 0.58rem; color: var(--mist); }
+  .difficulty-key { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .dk-item { display: flex; align-items: center; gap: 8px; font-size: 0.65rem; }
+  .badge { display: inline-block; padding: 2px 8px; font-size: 0.58rem; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.1em; font-weight: 400; }
+  .badge-A { background: var(--sage); color: white; }
+  .badge-B { background: var(--gold); color: white; }
+  .badge-C { background: var(--rust); color: white; }
+  .btn { padding: 12px 28px; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; border: 1px solid var(--ink); transition: all 0.2s; touch-action: manipulation; }
+  .btn-primary { background: var(--ink); color: var(--paper); }
+  .btn-primary:hover { background: var(--rust); border-color: var(--rust); }
+  .btn-secondary { background: transparent; color: var(--ink); }
+  .btn-secondary:hover { background: var(--ink); color: var(--paper); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .control-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .log { background: white; border: 1px solid rgba(26,18,8,0.12); padding: 16px 20px; height: 160px; overflow-y: auto; margin-bottom: 20px; font-size: 0.62rem; line-height: 1.8; color: var(--mist); }
+  .log .entry { color: var(--ink); }
+  .log .good { color: var(--sage); }
+  .log .err { color: var(--rust); }
+  .output-label { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--mist); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .copy-btn { font-size: 0.58rem; padding: 4px 12px; border: 1px solid rgba(26,18,8,0.2); background: transparent; cursor: pointer; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mist); }
+  .copy-btn:hover { color: var(--ink); border-color: var(--ink); }
+  textarea { width: 100%; height: 320px; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; padding: 16px; background: white; border: 1px solid rgba(26,18,8,0.12); color: var(--ink); resize: vertical; outline: none; }
+  .result-count { font-size: 0.62rem; color: var(--sage); margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Vocabolario Classifier</h1>
+  <div class="subtitle">A · B · C — Difficulty Rating Tool</div>
+
+  <div class="warning">
+    <strong>How it works:</strong> Upload your <code>italian-flashcards.html</code> file. This tool extracts the wordBank, sends words to Claude in batches via your Cloudflare Worker, and classifies each as <strong>A</strong> (B2 entry), <strong>B</strong> (solid B2), or <strong>C</strong> (C1). It then outputs a complete updated wordBank with a <code>difficulty</code> field added to every entry. Takes ~5–8 minutes, costs ~$0.30–0.50.
+  </div>
+
+  <div class="difficulty-key">
+    <div class="dk-item"><span class="badge badge-A">A</span> B2 entry level — accessible vocabulary</div>
+    <div class="dk-item"><span class="badge badge-B">B</span> Solid B2 — educated everyday use</div>
+    <div class="dk-item"><span class="badge badge-C">C</span> C1 — advanced, literary, or technical</div>
+  </div>
+
+  <!-- Step 1: Upload -->
+  <div class="step">
+    <div class="step-label">Step 1 — Upload your flashcard app</div>
+    <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+      <input type="file" id="file-input" accept=".html" onchange="handleFile(this)">
+      <div class="uz-label">Click to upload <code>italian-flashcards.html</code></div>
+      <div class="uz-name" id="file-name"></div>
+    </div>
+  </div>
+
+  <!-- Step 2: Status -->
+  <div class="status-box">
+    <div class="status-line">Words found: <span id="word-count">—</span></div>
+    <div class="status-line">Batches: <span id="batch-count">—</span></div>
+    <div class="status-line">Status: <span id="status-text">Waiting for file…</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-label" id="progress-label">0 batches complete</div>
+  </div>
+
+  <div class="control-row">
+    <button class="btn btn-primary" id="start-btn" onclick="startClassification()" disabled>Classify All</button>
+    <button class="btn btn-secondary" id="pause-btn" onclick="togglePause()" disabled>Pause</button>
+    <button class="btn btn-secondary" onclick="clearSaved()">Clear Saved</button>
+  </div>
+
+  <div class="log" id="log"></div>
+
+  <!-- Output -->
+  <div class="output-label">
+    Updated wordBank (copy into italian-flashcards.html)
+    <button class="copy-btn" onclick="copyOutput()">Copy all</button>
+  </div>
+  <textarea id="output" readonly placeholder="Classified wordBank will appear here…"></textarea>
+  <div class="result-count" id="result-count"></div>
+</div>
+
+<script>
+const PROXY = 'https://traduttore-proxy.justin-marsico.workers.dev';
+const BATCH = 35;
+let allWords = [];
+let classified = {};
+let currentBatch = 0;
+let paused = false;
+let running = false;
+
+// ── File handling ────────────────────────────────────────────────────────────
+function handleFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('file-name').textContent = file.name;
+  document.getElementById('file-name').style.display = 'block';
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    const html = e.target.result;
+    extractWordBank(html);
+  };
+  reader.readAsText(file);
+}
+
+function extractWordBank(html) {
+  // Extract the wordBank array from the HTML
+  const match = html.match(/const wordBank\s*=\s*(\[[\s\S]*?\]);/);
+  if (!match) {
+    log('Could not find wordBank in the file. Make sure it\'s the flashcard app HTML.', 'err');
+    return;
+  }
+  try {
+    // Safe eval of the JS array
+    const fn = new Function('return ' + match[1]);
+    allWords = fn();
+    log(`✓ Extracted ${allWords.length} words from wordBank.`, 'good');
+    document.getElementById('word-count').textContent = allWords.length;
+    const totalBatches = Math.ceil(allWords.length / BATCH);
+    document.getElementById('batch-count').textContent = totalBatches;
+    document.getElementById('status-text').textContent = 'Ready';
+    document.getElementById('start-btn').disabled = false;
+    loadSaved();
+  } catch(e) {
+    log('Error parsing wordBank: ' + e.message, 'err');
+  }
+}
+
+// ── Storage ──────────────────────────────────────────────────────────────────
+function loadSaved() {
+  try {
+    const saved = localStorage.getItem('voc_classifier_results');
+    const savedBatch = localStorage.getItem('voc_classifier_batch');
+    if (saved) {
+      classified = JSON.parse(saved);
+      currentBatch = parseInt(savedBatch) || 0;
+      const done = Object.keys(classified).length;
+      log(`Resumed: ${done} words already classified, starting from batch ${currentBatch}.`, 'good');
+      renderOutput();
+      updateProgress();
+    }
+  } catch(e) {}
+}
+
+function saveProgress() {
+  try {
+    localStorage.setItem('voc_classifier_results', JSON.stringify(classified));
+    localStorage.setItem('voc_classifier_batch', currentBatch.toString());
+  } catch(e) {}
+}
+
+function clearSaved() {
+  if (!confirm('Clear all saved classification results?')) return;
+  classified = {};
+  currentBatch = 0;
+  localStorage.removeItem('voc_classifier_results');
+  localStorage.removeItem('voc_classifier_batch');
+  document.getElementById('output').value = '';
+  document.getElementById('result-count').textContent = '';
+  updateProgress();
+  log('Cleared. Ready to start fresh.', 'entry');
+}
+
+// ── Classification ───────────────────────────────────────────────────────────
+async function startClassification() {
+  if (running || allWords.length === 0) return;
+  running = true;
+  paused = false;
+  document.getElementById('start-btn').disabled = true;
+  document.getElementById('pause-btn').disabled = false;
+  document.getElementById('status-text').textContent = 'Running…';
+
+  const totalBatches = Math.ceil(allWords.length / BATCH);
+
+  while (currentBatch < totalBatches && !paused) {
+    const start = currentBatch * BATCH;
+    const batch = allWords.slice(start, start + BATCH);
+    log(`Batch ${currentBatch + 1}/${totalBatches} — classifying ${batch.length} words…`);
+
+    try {
+      const results = await classifyBatch(batch);
+      Object.assign(classified, results);
+      currentBatch++;
+      saveProgress();
+      updateProgress();
+      renderOutput();
+      log(`✓ Batch ${currentBatch} done — ${Object.keys(results).length} classified.`, 'good');
+    } catch(err) {
+      log(`✗ Error: ${err.message}. Retrying in 5s…`, 'err');
+      await sleep(5000);
+      try {
+        const results = await classifyBatch(batch);
+        Object.assign(classified, results);
+        currentBatch++;
+        saveProgress();
+        updateProgress();
+        renderOutput();
+        log(`✓ Retry succeeded.`, 'good');
+      } catch(err2) {
+        log(`✗ Skipping batch ${currentBatch + 1}: ${err2.message}`, 'err');
+        currentBatch++;
+      }
+    }
+
+    if (!paused && currentBatch < totalBatches) await sleep(700);
+  }
+
+  running = false;
+  document.getElementById('start-btn').disabled = false;
+  document.getElementById('pause-btn').disabled = true;
+
+  if (currentBatch >= totalBatches) {
+    document.getElementById('status-text').textContent = 'Complete!';
+    log(`🎉 Classification complete! ${Object.keys(classified).length} words rated.`, 'good');
+  } else {
+    document.getElementById('status-text').textContent = 'Paused';
+    log('Paused. Click Classify All to resume.', 'entry');
+  }
+}
+
+async function classifyBatch(words) {
+  const wordList = words.map((w, i) => `${i+1}. "${w.word}" (${w.type})`).join('\n');
+
+  const prompt = `You are an expert Italian language teacher. Classify each of the following Italian words/phrases by difficulty for a learner:
+
+A = B2 entry level: common vocabulary a B2 learner would encounter early, everyday words and basic expressions
+B = Solid B2: intermediate vocabulary requiring some exposure, common idioms, workplace/academic terms  
+C = C1: advanced vocabulary, literary/formal register, technical terms, rare idioms, nuanced expressions
+
+Respond ONLY with valid JSON, no markdown, no explanation:
+{
+  "results": [
+    {"word": "exact word as given", "difficulty": "A" | "B" | "C"},
+    ...
+  ]
+}
+
+Words to classify:
+${wordList}`;
+
+  const resp = await fetch(PROXY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-5',
+      max_tokens: 2000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+
+  const text = data.content?.find(b => b.type === 'text')?.text || '{}';
+  const clean = text.replace(/```json|```/g, '').trim();
+  const parsed = JSON.parse(clean);
+
+  const map = {};
+  for (const r of (parsed.results || [])) {
+    map[r.word] = r.difficulty;
+  }
+  return map;
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
+function renderOutput() {
+  if (allWords.length === 0) return;
+  const lines = allWords.map(w => {
+    const diff = classified[w.word] || 'B'; // default B if not yet classified
+    const word = (w.word || '').replace(/'/g, "\\'");
+    const type = (w.type || '').replace(/'/g, "\\'");
+    const pron = (w.pron || '').replace(/'/g, "\\'");
+    const example = (w.example || '').replace(/'/g, "\\'");
+    return `  { word: '${word}', type: '${type}', pron: '${pron}', example: '${example}', difficulty: '${diff}' },`;
+  });
+  document.getElementById('output').value = lines.join('\n');
+  const done = Object.keys(classified).length;
+  document.getElementById('result-count').textContent = `${done} / ${allWords.length} words classified`;
+}
+
+function updateProgress() {
+  const totalBatches = Math.ceil(allWords.length / BATCH);
+  const pct = totalBatches > 0 ? (currentBatch / totalBatches) * 100 : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${currentBatch} / ${totalBatches} batches complete`;
+}
+
+function copyOutput() {
+  const ta = document.getElementById('output');
+  ta.select();
+  document.execCommand('copy');
+  const btn = document.querySelector('.copy-btn');
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = 'Copy all', 2000);
+}
+
+function togglePause() {
+  paused = !paused;
+  document.getElementById('pause-btn').textContent = paused ? 'Resume' : 'Pause';
+  if (!paused && !running) startClassification();
+}
+
+function log(msg, cls = 'entry') {
+  const div = document.getElementById('log');
+  const line = document.createElement('div');
+  line.className = `entry ${cls}`;
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  div.appendChild(line);
+  div.scrollTop = div.scrollHeight;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>
