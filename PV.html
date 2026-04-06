@@ -3,18 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment File Screener — marsico.us</title>
+  <meta name="color-scheme" content="light">
+  <title>Payment Verification 2.0 — marsico.us</title>
   <link rel="icon" href="favicon32.png" type="image/png">
   <style>
-    /* ── Reset & Base ── */
+    /* -- Reset & Base -- */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
+      color-scheme: light;
       --font: 'Inter', 'Helvetica Neue', Arial, sans-serif;
       --mono: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
       --black: #0d0d0d;
       --gray-900: #1a1a1a;
       --gray-700: #3d3d3d;
       --gray-500: #737373;
+      --gray-400: #a3a3a3;
       --gray-300: #c4c4c4;
       --gray-200: #e5e5e5;
       --gray-100: #f5f5f5;
@@ -38,26 +41,26 @@
       --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
       --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
     }
-    html { font-size: 16px; }
+    html { font-size: 16px; color-scheme: light; }
     body {
       font-family: var(--font);
-      color: var(--gray-900);
-      background: var(--gray-50);
+      color: #1a1a1a;
+      background: #f5f5f5 !important;
       line-height: 1.6;
       min-height: 100vh;
     }
 
-    /* ── Typography ── */
-    h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; color: var(--black); }
-    h2 { font-size: 1.1rem; font-weight: 600; color: var(--black); }
-    h3 { font-size: 0.9rem; font-weight: 600; color: var(--gray-700); }
-    p  { font-size: 0.875rem; color: var(--gray-700); line-height: 1.65; }
+    /* -- Typography -- */
+    h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; color: #0d0d0d; }
+    h2 { font-size: 1.1rem; font-weight: 600; color: #0d0d0d; }
+    h3 { font-size: 0.9rem; font-weight: 600; color: #3d3d3d; }
+    p  { font-size: 0.875rem; color: #3d3d3d; line-height: 1.65; }
 
-    /* ── Page chrome ── */
+    /* -- Page chrome -- */
     .site-header {
-      background: var(--white);
-      border-bottom: 1px solid var(--gray-200);
-      padding: 0 2rem;
+      background: #ffffff !important;
+      border-bottom: 1px solid #e5e5e5 !important;
+      padding: 0 1.5rem;
       height: 52px;
       display: flex;
       align-items: center;
@@ -66,20 +69,20 @@
     .site-header .logo {
       font-size: 0.875rem;
       font-weight: 600;
-      color: var(--black);
+      color: #0d0d0d !important;
       text-decoration: none;
       letter-spacing: -0.01em;
     }
-    .site-header .logo span { font-weight: 400; color: var(--gray-500); }
+    .site-header .logo span { font-weight: 400; color: #737373 !important; }
     .site-header .back-link {
       font-size: 0.8rem;
-      color: var(--gray-500);
+      color: #737373 !important;
       text-decoration: none;
       display: flex;
       align-items: center;
       gap: 4px;
     }
-    .site-header .back-link:hover { color: var(--gray-900); }
+    .site-header .back-link:hover { color: #1a1a1a !important; }
 
     .page-wrap {
       max-width: 860px;
@@ -90,7 +93,8 @@
     .page-intro {
       margin-bottom: 2rem;
       padding-bottom: 1.5rem;
-      border-bottom: 1px solid var(--gray-200);
+      border-bottom: 1px solid #e5e5e5;
+      background: #f5f5f5;
     }
     .page-intro h1 { margin-bottom: 0.4rem; }
     .page-intro p { max-width: 600px; }
@@ -100,15 +104,15 @@
       font-weight: 600;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      background: var(--amber-lt);
-      color: var(--amber);
-      border: 1px solid var(--amber-bd);
+      background: #f0eaff;
+      color: #6b21a8;
+      border: 1px solid #c084fc;
       border-radius: var(--radius-sm);
       padding: 2px 8px;
       margin-bottom: 0.75rem;
     }
 
-    /* ── Cards & containers ── */
+    /* -- Cards & containers -- */
     .card {
       background: var(--white);
       border: 1px solid var(--gray-200);
@@ -125,7 +129,7 @@
     .card-header h2 { margin-bottom: 2px; }
     .card-header p { font-size: 0.8rem; color: var(--gray-500); }
 
-    /* ── Buttons ── */
+    /* -- Buttons -- */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -158,7 +162,7 @@
     .btn-lg { padding: 10px 22px; font-size: 0.9rem; }
     .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 
-    /* ── Badges / pills ── */
+    /* -- Badges / pills -- */
     .badge {
       display: inline-block;
       font-size: 0.7rem;
@@ -174,17 +178,7 @@
     .badge-info    { background: var(--blue-lt);  color: var(--blue); }
     .badge-neutral { background: var(--gray-100); color: var(--gray-700); }
 
-    /* ── Summary bar ── */
-    .sum-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
-    .sum-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 12px 14px; text-align: center; box-shadow: var(--shadow-sm); }
-    .sum-card .num { font-size: 1.5rem; font-weight: 600; line-height: 1; }
-    .sum-card .lbl { font-size: 0.7rem; color: var(--gray-500); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
-    .sum-card.s-pass .num { color: var(--green); }
-    .sum-card.s-warn .num { color: var(--amber); }
-    .sum-card.s-err  .num { color: var(--red); }
-    .sum-card.s-info .num { color: var(--blue); }
-
-    /* ── Pipeline checks ── */
+    /* -- Pipeline checks -- */
     .pipeline-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gray-500); margin-bottom: 10px; }
     .check-item {
       display: flex;
@@ -215,7 +209,7 @@
     .check-label { font-size: 0.875rem; font-weight: 500; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .check-desc  { font-size: 0.8rem; color: var(--gray-500); margin-top: 3px; line-height: 1.5; }
 
-    /* ── Prompt boxes ── */
+    /* -- Prompt boxes -- */
     .prompt-box {
       margin-top: 12px;
       border: 1px solid var(--gray-200);
@@ -235,7 +229,7 @@
     .prompt-body p { margin-bottom: 10px; font-size: 0.8125rem; }
     .prompt-body p:last-of-type { margin-bottom: 0; }
 
-    /* ── Tables ── */
+    /* -- Tables -- */
     .tbl-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
     thead th {
@@ -256,30 +250,89 @@
     tbody tr.tas-neg td  { background: #fef6f6; }
     tbody tr.tas-low td  { background: #fffbeb; }
 
-    /* ── Grid layouts ── */
+    /* -- Grid layouts -- */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    @media (max-width: 600px) {
-      .grid-2, .grid-3, .sum-bar { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 400px) {
-      .sum-bar { grid-template-columns: 1fr 1fr; }
-    }
 
-    /* ── Threshold grid ── */
+    /* -- Threshold grid -- */
     .threshold-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
-    @media (max-width: 520px) { .threshold-grid, .dnp-grid { grid-template-columns: 1fr; } }
     .threshold-item { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 10px 12px; }
     .threshold-item label { font-size: 0.75rem; color: var(--gray-500); display: block; margin-bottom: 5px; }
     .threshold-item select { font-size: 0.8rem; padding: 5px 8px; border: 1px solid var(--gray-300); border-radius: var(--radius-sm); background: var(--white); color: var(--gray-900); width: 100%; font-family: var(--font); }
 
-    /* ── DNP list grid ── */
+    /* -- DNP list grid -- */
     .dnp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
     .dnp-card { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 10px 12px; font-size: 0.8rem; }
     .dnp-card .dc-name { font-weight: 600; color: var(--gray-900); margin-bottom: 3px; display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
     .dnp-card .dc-detail { font-size: 0.73rem; color: var(--gray-500); line-height: 1.4; }
 
-    /* ── Payee registration form ── */
+    /* -- Summary bar -- */
+    .sum-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1.25rem; }
+    .sum-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 10px 12px; text-align: center; box-shadow: var(--shadow-sm); }
+    .sum-card .num { font-size: 1.5rem; font-weight: 600; line-height: 1; }
+    .sum-card .lbl { font-size: 0.7rem; color: var(--gray-500); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .sum-card.s-pass .num { color: var(--green); }
+    .sum-card.s-warn .num { color: var(--amber); }
+    .sum-card.s-err  .num { color: var(--red); }
+    .sum-card.s-info .num { color: var(--blue); }
+
+    /* -- Certification panel -- */
+    .cert-wrap { margin-top: 1.5rem; }
+    .cert-divider { height: 1px; background: var(--gray-200); margin: 1.5rem 0; }
+    .payment-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+    .ps-card { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 12px; text-align: center; }
+    .ps-card .num { font-size: 1.25rem; font-weight: 600; }
+    .ps-card .lbl { font-size: 0.7rem; color: var(--gray-500); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .ps-card.ps-good .num { color: var(--green); }
+    .ps-card.ps-bad  .num { color: var(--red); }
+
+    .ret-log { border: 1px solid var(--gray-200); border-radius: var(--radius-md); margin-bottom: 1rem; overflow: hidden; }
+    .ret-log-hdr { padding: 9px 14px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; }
+    .ret-log-hdr:hover { background: var(--gray-100); }
+    .ret-log-body { display: none; }
+    .ret-log-body.open { display: block; }
+
+    .pin-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 1rem; }
+    .pin-row label { font-size: 0.875rem; font-weight: 600; white-space: nowrap; }
+    .pin-input {
+      padding: 9px 14px;
+      font-size: 1rem;
+      letter-spacing: 6px;
+      font-family: var(--mono);
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius-md);
+      background: var(--white);
+      color: var(--gray-900);
+      width: 160px;
+      transition: border-color 0.12s;
+    }
+    .pin-input:focus { outline: none; border-color: var(--gray-700); }
+    .pin-hint { font-size: 0.75rem; color: var(--gray-500); }
+
+    /* -- Global mobile breakpoint — single column everything -- */
+    @media (max-width: 540px) {
+      .page-wrap { padding: 1rem 1rem 3rem; }
+      .card-body { padding: 1rem; }
+      .card-header { padding: 0.875rem 1rem; }
+      h1 { font-size: 1.25rem; }
+
+      .sum-bar { grid-template-columns: 1fr 1fr; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .dnp-grid, .threshold-grid { grid-template-columns: 1fr; }
+      .payment-summary { grid-template-columns: 1fr; }
+
+      .btn-row { flex-direction: column; }
+      .btn-row .btn { width: 100%; justify-content: center; }
+
+      .pin-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .pin-input { width: 100%; }
+
+      .check-item { padding: 10px; }
+      .submit-card { padding: 1.5rem 1rem; }
+    }
+
+
+    /* -- Payee registration form -- */
     .reg-item { border: 1px solid var(--gray-200); border-radius: var(--radius-md); margin-bottom: 8px; overflow: hidden; background: var(--white); }
     .reg-item-hdr { padding: 9px 12px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); font-size: 0.8125rem; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .reg-item-hdr:hover { background: var(--gray-100); }
@@ -293,13 +346,13 @@
     .fs-complete   { background: var(--green-lt); color: var(--green); }
     .fs-incomplete { background: var(--amber-lt); color: var(--amber); }
 
-    /* ── Offset / TOP table ── */
+    /* -- Offset / TOP table -- */
     .top-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 10px 0; }
     .top-table th { padding: 6px 10px; text-align: left; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); font-weight: 600; color: var(--gray-500); font-size: 0.73rem; white-space: nowrap; }
     .top-table td { padding: 6px 10px; border-bottom: 1px solid var(--gray-200); }
     .top-table tr:last-child td { border-bottom: none; }
 
-    /* ── Clickable completed checks ── */
+    /* -- Clickable completed checks -- */
     .check-item.ci-passed.clickable,
     .check-item.ci-paused.clickable { cursor: pointer; }
     .check-item.ci-passed.clickable:hover { background: var(--gray-50); border-color: var(--gray-300); }
@@ -310,7 +363,7 @@
     .revisit-banner span { flex: 1; }
     .check-expand-hint { font-size: 0.73rem; color: var(--gray-400); margin-top: 3px; }
 
-    /* ── Certification panel ── */
+    /* -- Certification panel -- */
     .cert-wrap { margin-top: 1.5rem; }
     .cert-divider { height: 1px; background: var(--gray-200); margin: 1.5rem 0; }
     .payment-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
@@ -319,21 +372,6 @@
     .ps-card .lbl { font-size: 0.7rem; color: var(--gray-500); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
     .ps-card.ps-good .num { color: var(--green); }
     .ps-card.ps-bad  .num { color: var(--red); }
-    @media (max-width: 480px) {
-      .payment-summary { grid-template-columns: 1fr 1fr; }
-      .payment-summary .ps-card:last-child { grid-column: 1 / -1; }
-      .pin-row { flex-direction: column; align-items: flex-start; gap: 8px; }
-      .pin-input { width: 100%; }
-      .pin-hint { margin-top: 0; }
-      .ret-log-hdr { flex-direction: column; align-items: flex-start; gap: 4px; }
-    }
-
-    .ret-log { border: 1px solid var(--gray-200); border-radius: var(--radius-md); margin-bottom: 1rem; overflow: hidden; }
-    .ret-log-hdr { padding: 9px 14px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; }
-    .ret-log-hdr:hover { background: var(--gray-100); }
-    .ret-log-body { display: none; }
-    .ret-log-body.open { display: block; }
-
     .override-box { border: 1px solid var(--amber-bd); border-radius: var(--radius-md); padding: 14px; margin-bottom: 1rem; background: var(--amber-lt); }
     .override-box .ov-title { font-size: 0.8rem; font-weight: 600; color: var(--amber); margin-bottom: 8px; }
     .ov-item { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(245,195,106,0.4); font-size: 0.8rem; color: var(--gray-700); line-height: 1.5; }
@@ -386,18 +424,18 @@
     .cert-btn:hover:not(:disabled) { background: var(--green-lt); }
     .cert-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-    /* ── Success state ── */
+    /* -- Success state -- */
     .cert-success { padding: 2rem; text-align: center; background: var(--green-lt); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
     .cert-success .cs-icon { font-size: 2rem; margin-bottom: 10px; }
     .cert-success h2 { color: var(--green); margin-bottom: 6px; }
     .cert-success p { font-size: 0.8125rem; color: var(--green); max-width: 480px; margin: 0 auto 16px; }
     .cert-success .ref { font-family: var(--mono); font-size: 0.8rem; color: var(--gray-500); margin-bottom: 1rem; }
 
-    /* ── Spinner ── */
+    /* -- Spinner -- */
     .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--blue-bd); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Upload / submit card ── */
+    /* -- Upload / submit card -- */
     .submit-card { text-align: center; padding: 2.5rem 2rem; }
     .submit-card h2 { margin-bottom: 0.5rem; }
     .submit-card p { max-width: 500px; margin: 0 auto 1.5rem; }
@@ -409,16 +447,31 @@
     }
     .file-badge .fb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
 
-    /* ── Preview ── */
+    /* -- Preview -- */
     .preview-wrap { border: 1px solid var(--gray-200); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 1rem; }
     .preview-hdr { padding: 9px 14px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); font-size: 0.8rem; font-weight: 600; color: var(--gray-700); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
     .legend { display: flex; gap: 12px; font-size: 0.73rem; color: var(--gray-500); }
     .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 3px; vertical-align: middle; }
 
-    /* ── Section dividers ── */
+    /* -- Section dividers -- */
     .section-gap { height: 1.5rem; }
 
-    /* ── Footer ── */
+    /* -- Welcome screen -- */
+    .welcome-card { padding: 2rem 2rem 1.75rem; }
+    .welcome-seal { width: 56px; height: 56px; border-radius: 50%; background: var(--blue-lt); border: 1px solid var(--blue-bd); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; font-size: 1.5rem; }
+    .welcome-agency { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); margin-bottom: 0.4rem; }
+    .welcome-card h2 { font-size: 1.2rem; margin-bottom: 0.25rem; }
+    .welcome-card .welcome-user { font-size: 0.875rem; color: var(--gray-500); margin-bottom: 1.25rem; }
+    .welcome-card .welcome-user strong { color: var(--gray-900); font-weight: 600; }
+    .welcome-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+    .welcome-meta-item { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 10px 12px; }
+    .welcome-meta-item .wm-label { font-size: 0.7rem; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
+    .welcome-meta-item .wm-value { font-size: 0.8125rem; font-weight: 500; color: var(--gray-900); }
+    .welcome-divider { height: 1px; background: var(--gray-200); margin-bottom: 1.25rem; }
+    .welcome-desc { font-size: 0.8125rem; color: var(--gray-600, var(--gray-700)); line-height: 1.65; margin-bottom: 1.5rem; max-width: 560px; }
+    @media (max-width: 540px) { .welcome-meta { grid-template-columns: 1fr 1fr; } }
+
+    /* -- Footer -- */
     .site-footer { margin-top: 4rem; padding: 1.5rem 2rem; border-top: 1px solid var(--gray-200); background: var(--white); text-align: center; }
     .site-footer p { font-size: 0.75rem; color: var(--gray-500); }
     .site-footer a { color: var(--gray-700); text-decoration: none; }
@@ -427,28 +480,68 @@
 </head>
 <body>
 
-  <!-- ── Site header ── -->
+  <!-- -- Site header -- -->
   <header class="site-header">
     <a href="https://marsico.us" class="logo">Justin <span>Marsico</span></a>
     <a href="https://marsico.us" class="back-link">← marsico.us</a>
   </header>
 
-  <!-- ── Page ── -->
+  <!-- -- Page -- -->
   <div class="page-wrap">
 
     <div class="page-intro">
       <div class="prototype-badge">Prototype</div>
-      <h1>Payment file screener</h1>
-      <p>Pre-payment screening and certifying officer certification. Runs payee validation, Do Not Pay:Connect history, new payee registration, treasury account balance checks, and all required integrity checks before certification.</p>
+      <h1>Payment Verification 2.0</h1>
+      <p>Protecting America's Bank Account</p>
+    </div>
+
+    <!-- STEP 0: Welcome -->
+    <div id="step-welcome">
+      <div class="card">
+        <div class="welcome-card">
+          <div class="welcome-agency">U.S. Department of Transportation</div>
+          <h2>Payment Verification 2.0</h2>
+          <p class="welcome-user">Welcome back, <strong>Maria T. Okonkwo</strong> · Certifying Officer, Office of the Secretary</p>
+          <div class="welcome-meta">
+            <div class="welcome-meta-item">
+              <div class="wm-label">Agency</div>
+              <div class="wm-value">U.S. Dept. of Transportation</div>
+            </div>
+            <div class="welcome-meta-item">
+              <div class="wm-label">Role</div>
+              <div class="wm-value">Certifying Officer</div>
+            </div>
+            <div class="welcome-meta-item">
+              <div class="wm-label">Fiscal period</div>
+              <div class="wm-value">FY 2025 Q2</div>
+            </div>
+            <div class="welcome-meta-item">
+              <div class="wm-label">Agency Locator Codes</div>
+              <div class="wm-value">69-0100, 69-1700, 69-6500, 69-7000</div>
+            </div>
+            <div class="welcome-meta-item">
+              <div class="wm-label">Session started</div>
+              <div class="wm-value" id="sessionTime"></div>
+            </div>
+            <div class="welcome-meta-item">
+              <div class="wm-label">Last sign-in</div>
+              <div class="wm-value">Mar 28, 2025 · 09:14 AM</div>
+            </div>
+          </div>
+          <div class="welcome-divider"></div>
+          <p class="welcome-desc">You are authorized to certify payments on behalf of the U.S. Department of Transportation and its operating administrations. By submitting a payment file you attest that all disbursements are proper, legal, and supported by valid obligations. All submissions are subject to pre-payment screening under the Payment Integrity Information Act of 2019 and EO 14249.</p>
+          <button class="btn btn-primary btn-lg" onclick="proceedToUpload()">Submit a payment file →</button>
+        </div>
+      </div>
     </div>
 
     <!-- STEP 1: Submit -->
-    <div id="step-upload">
+    <div id="step-upload" style="display:none">
       <div class="card">
         <div class="submit-card">
           <h2>Submit a payment file</h2>
-          <p>Click below to load the sample payment file and begin pre-payment screening. The file contains 12 payment transactions across multiple agencies.</p>
-          <div class="file-badge"><span class="fb-dot"></span> sample_payments_fy2025_q2.csv · 12 transactions</div>
+          <p>Click below to load the sample DOT payment file and begin pre-payment screening. The file contains 200 payment transactions across DOT operating administrations.</p>
+          <div class="file-badge"><span class="fb-dot"></span> sample_payments_fy2025_q2.csv · 200 transactions</div>
           <br>
           <button class="btn btn-primary btn-lg" onclick="startWorkflow()">Click to submit sample payment file</button>
         </div>
@@ -465,7 +558,7 @@
         <div class="card-body">
           <div class="preview-wrap">
             <div class="preview-hdr">
-              <span>sample_payments_fy2025_q2.csv — 12 transactions</span>
+              <span>sample_payments_fy2025_q2.csv — 200 transactions</span>
               <div class="legend">
                 <span><span class="legend-dot" style="background:#fbbf24;"></span>New payee</span>
                 <span><span class="legend-dot" style="background:#fca5a5;"></span>Flagged record</span>
@@ -503,44 +596,45 @@
   </div><!-- /page-wrap -->
 
   <footer class="site-footer">
-    <p>Payment File Screener · <a href="https://marsico.us">marsico.us</a> · Prototype — not for use with real payment data</p>
+    <p>Payment Verification 2.0 · <a href="https://marsico.us">marsico.us</a> · Prototype — not for use with real payment data</p>
   </footer>
 
 <script>
-// ─── Sample data ───────────────────────────────────────────────────────────
+// --- Sample data -----------------------------------------------------------
 const SAMPLE = [
-  {tin:'523-88-1042',name:'Margaret L. Osei',       acct:'****3847',rtn:'021000021',amount:4250.00, tas:'075-0400',betc:'DISB',org:'HHS',  alc:'75-2100',isNew:false,flags:[]},
-  {tin:'891-44-2031',name:'Delray Construction LLC', acct:'****9201',rtn:'026009593',amount:18750.00,tas:'012-1105',betc:'DISB',org:'USDA', alc:'12-3400',isNew:true, flags:['new']},
-  {tin:'317-55-0892',name:'Anika B. Winters',        acct:'****6614',rtn:'111000025',amount:2100.00, tas:'075-0400',betc:'DISB',org:'HHS',  alc:'75-2100',isNew:false,flags:[]},
-  {tin:'',           name:'Torres-Medina & Assoc.',  acct:'****0044',rtn:'322271627',amount:9500.00, tas:'097-0100',betc:'DISB',org:'DoD',  alc:'97-0100',isNew:false,flags:['missing_tin']},
-  {tin:'604-29-7731',name:'James K. Okonkwo',        acct:'****5523',rtn:'063100277',amount:1875.00, tas:'075-0400',betc:'DISB',org:'HHS',  alc:'75-2100',isNew:true, flags:['new']},
-  {tin:'730-81-4405',name:'Pinnacle Staffing Inc.',  acct:'****8812',rtn:'071000013',amount:34200.00,tas:'014-2400',betc:'DISB',org:'HUD',  alc:'14-0400',isNew:false,flags:['debt']},
-  {tin:'248-66-9027',name:'Rosa V. Mbeki',           acct:'****1199',rtn:'124000054',amount:3300.00, tas:'075-0400',betc:'DISB',org:'HHS',  alc:'75-2100',isNew:true, flags:['new']},
-  {tin:'509-33-6841',name:'Lakeview Data Systems',   acct:'****7730',rtn:'044000037',amount:61000.00,tas:'070-0801',betc:'DISB',org:'DHS',  alc:'70-0800',isNew:false,flags:[]},
-  {tin:'182-77-3304',name:'Curtis D. Hargrove',      acct:'****4491',rtn:'091000019',amount:2550.00, tas:'075-0400',betc:'DISB',org:'HHS',  alc:'75-2100',isNew:false,flags:['deceased']},
-  {tin:'667-14-8820',name:'Sunrise Engineering LLC', acct:'****6603',rtn:'103000648',amount:27500.00,tas:'069-0501',betc:'DISB',org:'DOT',  alc:'69-1700',isNew:true, flags:['new']},
-  {tin:'435-90-2156',name:'Paulette N. Adeyemi',     acct:'****2278',rtn:'021200339',amount:1400.00, tas:'075-0400',betc:'DISB',org:'HHS',  alc:'75-2100',isNew:false,flags:[]},
-  {tin:'776-58-1093',name:'Global Horizons Intl',    acct:'****9954',rtn:'082000073',amount:15800.00,tas:'019-0529',betc:'DISB',org:'DOS',  alc:'19-0100',isNew:false,flags:['highrisk']},
+  {tin:'523-88-1042',name:'Meridian Bridge Consultants LLC',  acct:'****3847',rtn:'021000021',amount:84250.00, tas:'069-0501',betc:'DISB',org:'FHWA', alc:'69-0555',isNew:false,flags:[]},
+  {tin:'891-44-2031',name:'Delray Infrastructure Partners',   acct:'****9201',rtn:'026009593',amount:142750.00,tas:'069-0606',betc:'DISB',org:'FTA',  alc:'69-1200',isNew:true, flags:['new']},
+  {tin:'317-55-0892',name:'Anika B. Winters',                 acct:'****6614',rtn:'111000025',amount:3100.00,  tas:'069-0100',betc:'DISB',org:'OST',  alc:'69-0100',isNew:false,flags:[]},
+  {tin:'',           name:'Transcontinental Rail Group',      acct:'****0044',rtn:'322271627',amount:67500.00, tas:'069-1750',betc:'DISB',org:'FRA',  alc:'69-1750',isNew:false,flags:['missing_tin']},
+  {tin:'604-29-7731',name:'James K. Okonkwo',                 acct:'****5523',rtn:'063100277',amount:2875.00,  tas:'069-0100',betc:'DISB',org:'OST',  alc:'69-0100',isNew:true, flags:['new']},
+  {tin:'730-81-4405',name:'Pinnacle Aviation Services Inc.',  acct:'****8812',rtn:'071000013',amount:215400.00,tas:'069-1301',betc:'DISB',org:'FAA',  alc:'69-1301',isNew:false,flags:['debt']},
+  {tin:'248-66-9027',name:'Rosa V. Mbeki',                    acct:'****1199',rtn:'124000054',amount:2100.00,  tas:'069-0100',betc:'DISB',org:'OST',  alc:'69-0100',isNew:true, flags:['new']},
+  {tin:'509-33-6841',name:'Coastal Maritime Solutions LLC',   acct:'****7730',rtn:'044000037',amount:38500.00, tas:'069-5500',betc:'DISB',org:'MARAD',alc:'69-5500',isNew:false,flags:[]},
+  {tin:'182-77-3304',name:'Curtis D. Hargrove',               acct:'****4491',rtn:'091000019',amount:4150.00,  tas:'069-0100',betc:'DISB',org:'OST',  alc:'69-0100',isNew:false,flags:['deceased']},
+  {tin:'667-14-8820',name:'Sunrise Road Engineering LLC',     acct:'****6603',rtn:'103000648',amount:93000.00, tas:'069-0501',betc:'DISB',org:'FHWA', alc:'69-0555',isNew:true, flags:['new']},
+  {tin:'435-90-2156',name:'Paulette N. Adeyemi',              acct:'****2278',rtn:'021200339',amount:2600.00,  tas:'069-0100',betc:'DISB',org:'OST',  alc:'69-0100',isNew:false,flags:[]},
+  {tin:'776-58-1093',name:'Global Transit Horizons Intl',     acct:'****9954',rtn:'082000073',amount:47800.00, tas:'069-0606',betc:'DISB',org:'FTA',  alc:'69-1200',isNew:false,flags:['highrisk']},
 ];
 
 const TAS_BALANCES = [
-  {tas:'075-0400',desc:'HHS Program Account',        balance:2840000},
-  {tas:'012-1105',desc:'USDA Commodity Programs',    balance:9200},
-  {tas:'097-0100',desc:'DoD Operations',             balance:-14500},
-  {tas:'014-2400',desc:'HUD Rental Assistance',      balance:1100000},
-  {tas:'070-0801',desc:'DHS Operations',             balance:580000},
-  {tas:'069-0501',desc:'DOT Infrastructure',         balance:4200000},
-  {tas:'019-0529',desc:'DOS Diplomatic Programs',    balance:310000},
+  {tas:'069-0501',desc:'FHWA — Federal-Aid Highways',         balance:42800000},
+  {tas:'069-0606',desc:'FTA — Formula Grants',                balance:18400},
+  {tas:'069-0100',desc:'OST — Salaries and Expenses',         balance:2950000},
+  {tas:'069-1750',desc:'FRA — Rail and Infrastructure',       balance:-32000},
+  {tas:'069-1301',desc:'FAA — Operations',                    balance:61200000},
+  {tas:'069-5500',desc:'MARAD — Ship Disposal Program',       balance:880000},
 ];
 
 const DNP_LISTS = [
-  {name:'SSA Death Master File',              abbr:'DMF',   screened:12,matches:1,lastRun:'2025-03-28'},
-  {name:'DoD Manpower Data Center',          abbr:'DMDC',  screened:12,matches:0,lastRun:'2025-03-28'},
-  {name:'National Directory of New Hires',   abbr:'NDNH',  screened:10,matches:0,lastRun:'2025-03-15'},
-  {name:'Treasury Debarment List',           abbr:'TDL',   screened:12,matches:0,lastRun:'2025-03-28'},
-  {name:'HHS Office of Inspector General',  abbr:'OIG',   screened:12,matches:1,lastRun:'2025-03-28'},
-  {name:'Medicare/Medicaid Exclusions',      abbr:'CMS',   screened:8, matches:0,lastRun:'2025-02-10'},
+  {name:'SSA Death Master File',             abbr:'DMF',  screened:200,matches:1, runs:['2025-02-14','2025-03-28']},
+  {name:'DoD Manpower Data Center',          abbr:'DMDC', screened:200,matches:0, runs:['2025-02-14','2025-03-28']},
+  {name:'National Directory of New Hires',   abbr:'NDNH', screened:187,matches:0, runs:['2025-02-14','2025-03-15']},
+  {name:'Treasury Debarment List',           abbr:'TDL',  screened:200,matches:0, runs:['2025-02-14','2025-03-28']},
+  {name:'SAM.gov Exclusions',                abbr:'SAM',  screened:200,matches:1, runs:['2025-02-14','2025-03-28']},
+  {name:'OFAC Specially Designated Nationals',abbr:'OFAC',screened:200,matches:0, runs:['2025-02-14','2025-03-28']},
 ];
+
+const TOTAL = 200;
 
 const CHECKS = [
   {id:'dnp',         label:'Do Not Pay:Connect history check',       desc:'Verifying prior DNP:Connect screening submissions for this agency'},
@@ -554,21 +648,33 @@ const CHECKS = [
   {id:'tas',         label:'Treasury account balance check',         desc:'Verifying TAS-BETC accounts carry sufficient positive balances'},
 ];
 
-// ─── State ────────────────────────────────────────────────────────────────
+// --- State ----------------------------------------------------------------
 let CS = {};
 let returnedFlags = new Set();
 let overrideFlags = new Set();
 let newPayeeData  = {};
 
-// ─── Utilities ────────────────────────────────────────────────────────────
+// --- Utilities ------------------------------------------------------------
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const fmt$   = n   => (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
 const maskTIN = tin => { if (!tin) return ''; const d = tin.replace(/\D/g,''); return '***-**-' + d.slice(-4); };
 const ge    = id => document.getElementById(id);
 
-// ─── STEP 1: start ────────────────────────────────────────────────────────
+// --- Session time -----------------------------------------------------------
+document.addEventListener('DOMContentLoaded', () => {
+  const el = ge('sessionTime');
+  if (el) el.textContent = new Date().toLocaleString('en-US', {dateStyle:'medium', timeStyle:'short'});
+});
+
+// --- STEP 0 → 1: proceed from welcome -------------------------------------
+function proceedToUpload() {
+  ge('step-welcome').style.display = 'none';
+  ge('step-upload').style.display  = 'block';
+}
+
+// --- STEP 1: start --------------------------------------------------------
 function startWorkflow() {
-  ge('step-upload').style.display = 'none';
+  ge('step-upload').style.display  = 'none';
   ge('step-preview').style.display = 'block';
   renderPreview();
 }
@@ -582,10 +688,20 @@ function renderPreview() {
     const tin    = r.tin ? maskTIN(r.tin) : '<em style="color:#9b1c1c">missing</em>';
     h += `<tr class="${cls}"><td style="font-family:var(--mono)">${tin}</td><td>${r.name}</td><td style="font-family:var(--mono)">${r.acct}</td><td style="font-family:var(--mono)">${r.rtn}</td><td>${fmt$(r.amount)}</td><td style="font-family:var(--mono)">${r.tas}</td><td>${r.betc}</td><td>${r.org}</td><td>${r.alc}</td></tr>`;
   });
-  ge('previewTable').innerHTML = h + '</tbody>';
+  h += '</tbody>';
+  ge('previewTable').innerHTML = h;
+  // append note below table (remove old one first to avoid duplicates)
+  const wrap = ge('previewTable').closest('.preview-wrap');
+  const old = wrap.querySelector('.preview-note');
+  if (old) old.remove();
+  const note = document.createElement('p');
+  note.className = 'preview-note';
+  note.style.cssText = 'font-size:0.75rem;color:var(--gray-500);padding:8px 12px;border-top:1px solid var(--gray-200);margin:0';
+  note.textContent   = 'Showing 12 representative records. Full batch contains 200 transactions.';
+  wrap.appendChild(note);
 }
 
-// ─── STEP 2: begin screening ───────────────────────────────────────────────
+// --- STEP 2: begin screening -----------------------------------------------
 function beginScreening() {
   ge('step-preview').style.display   = 'none';
   ge('step-screening').style.display = 'block';
@@ -665,7 +781,7 @@ function updateSummary() {
   ge('sumPass').textContent = v.filter(s => s.status === 'passed').length;
   ge('sumWarn').textContent = v.filter(s => s.status === 'paused').length;
   ge('sumErr').textContent  = v.filter(s => s.status === 'failed').length;
-  ge('sumNew').textContent  = SAMPLE.filter(r => r.isNew).length;
+  ge('sumNew').textContent  = SAMPLE.some(r => r.isNew) ? 13 : 0;
 }
 
 async function runCheck(idx) {
@@ -677,40 +793,53 @@ async function runCheck(idx) {
   await fns[c.id](idx);
 }
 
-// ─── Check handlers ───────────────────────────────────────────────────────
+// --- Check handlers -------------------------------------------------------
 
 async function runDNP(idx) {
   const id = 'dnp';
+  const totalMatches = DNP_LISTS.reduce((s,l) => s + l.matches, 0);
   const cardsHTML = DNP_LISTS.map(l =>
     `<div class="dnp-card">
-       <div class="dc-name">${l.name} <span class="badge badge-${l.matches > 0 ? 'err' : 'pass'}">${l.matches} match${l.matches !== 1 ? 'es' : ''}</span></div>
-       <div class="dc-detail">${l.abbr} · ${l.screened} payees screened · Last run: ${l.lastRun}</div>
+       <div class="dc-name">${l.name} <span class="badge badge-${l.matches > 0 ? 'warn' : 'pass'}">${l.matches} match${l.matches !== 1 ? 'es' : ''}</span></div>
+       <div class="dc-detail">${l.abbr} · ${l.screened} payees · Screened: ${l.runs[0]} &amp; ${l.runs[1]}</div>
      </div>`
   ).join('');
-  setCheck(id, 'paused', 'All 12 payees have prior DNP:Connect submissions. Review history and optionally adjust thresholds.', 'All screened', 'pass');
+  setCheck(id, 'paused',
+    'All 200 payees screened through DNP:Connect on 2 separate occasions. Review PIIA compliance status below.',
+    'PIIA compliant', 'pass');
   showPrompt(id, `
-    <p>All payees in this file have been submitted through <strong>Do Not Pay:Connect</strong>. Review which lists were screened and any matches found:</p>
-    <div class="dnp-grid">${cardsHTML}</div>
-    <p>Optionally adjust risk thresholds applied during future DNP screening for this agency:</p>
-    <div class="threshold-grid">
-      <div class="threshold-item"><label>Identity risk tolerance</label><select><option>Standard</option><option>Low</option><option>Very low</option></select></div>
-      <div class="threshold-item"><label>Payment amount threshold</label><select><option>$50,000</option><option>$25,000</option><option>$10,000</option></select></div>
-      <div class="threshold-item"><label>New vendor sensitivity</label><select><option>Standard</option><option>Elevated</option><option>High</option></select></div>
-      <div class="threshold-item"><label>Cross-agency match depth</label><select><option>Standard</option><option>Deep</option></select></div>
+    <p>All 200 payees in this batch have been submitted to <strong>Do Not Pay:Connect</strong> for screening on <strong>two separate occasions</strong> (Feb 14 and Mar 28, 2025), consistent with the requirements of the <strong>Payment Integrity Information Act of 2019 (PIIA)</strong>.</p>
+    <p>${totalMatches} total match${totalMatches !== 1 ? 'es' : ''} were identified across all lists and are addressed in subsequent screening steps. No unreviewed matches block this batch.</p>
+    <div class="dnp-grid" style="margin:12px 0">${cardsHTML}</div>
+    <div style="padding:10px 12px;background:var(--green-lt);border:1px solid var(--green-bd);border-radius:var(--radius-md);font-size:0.8rem;color:var(--green);margin-bottom:12px;line-height:1.55">
+      <strong style="display:block;margin-bottom:2px">PIIA compliance determination</strong>
+      Two rounds of screening are on record for this payment batch. The agency has demonstrated good-faith compliance with PIIA pre-payment screening requirements.
     </div>
+    <p style="font-size:0.8rem;color:var(--gray-700);margin-bottom:8px">Please confirm the PIIA compliance status of this batch before continuing:</p>
     <div class="btn-row">
-      <button class="btn btn-info" onclick="dismissAndContinue('${id}',${idx},'Thresholds updated.')">Save threshold adjustments</button>
-      <button class="btn" onclick="dismissAndContinue('${id}',${idx},'Thresholds unchanged.')">Keep current thresholds</button>
-    </div>`, 'DNP:Connect screening history');
+      <button class="btn btn-success" onclick="dismissAndContinue('${id}',${idx},'PIIA compliance confirmed by certifying officer.')">These payments comply with PIIA</button>
+      <button class="btn btn-warning" onclick="dnpException(${idx})">I have a documented exception</button>
+    </div>`, 'Do Not Pay:Connect — PIIA compliance');
+}
+
+function dnpException(idx) {
+  const id = 'dnp';
+  overrideFlags.add('dnp');
+  setCheck(id, 'paused', 'Certifying officer noted a documented exception to PIIA screening requirements.', 'Exception noted', 'warn');
+  clearPrompt(id);
+  runCheck(idx + 1);
 }
 
 async function runNewPayee(idx) {
-  const id = 'newpayee';
-  const np = SAMPLE.filter(r => r.isNew);
-  if (!np.length) { setCheck(id,'passed','All payees found in federal payment history.','None detected','pass'); await sleep(200); runCheck(idx+1); return; }
-  setCheck(id, 'paused', `${np.length} payees not found in federal payment history. Initial payee registration required.`, `${np.length} new payees`, 'warn');
+  const id     = 'newpayee';
+  const np     = SAMPLE.filter(r => r.isNew);
+  const npTotal = 13;
+  if (!np.length) { setCheck(id,'passed','All 200 payees found in federal payment history.','None detected','pass'); await sleep(200); runCheck(idx+1); return; }
+  setCheck(id, 'paused', `${npTotal} payees not found in federal payment history. Initial payee registration required.`, `${npTotal} new payees`, 'warn');
   np.forEach(p => { newPayeeData[p.tin] = {dob:'',ip:'',device:''}; });
-  let formHTML = `<p>${np.length} payees have no prior federal payment record. <strong>Initial payee registration</strong> is required: date of birth, IP address, and device ID of the agency interaction point.</p><div>`;
+  let formHTML = `<p>${npTotal} payees in this batch have no prior federal payment record. <strong>Initial payee registration</strong> is required: date of birth, IP address, and device ID of the agency interaction.</p>
+    <p style="margin-top:6px;font-size:0.78rem;color:var(--gray-500)">Showing the ${np.length} flagged records from this batch. Complete all fields to enable registration, or skip to flag these payments pending registration.</p>
+    <div>`;
   np.forEach(p => {
     const k = p.tin.replace(/\D/g,'');
     formHTML += `<div class="reg-item">
@@ -725,10 +854,11 @@ async function runNewPayee(idx) {
       </div>
     </div>`;
   });
-  formHTML += `</div><div class="btn-row">
-    <button class="btn btn-success" id="regBtn" onclick="completeReg(${idx})" disabled>Complete initial payee registration</button>
-    <button class="btn btn-warning" onclick="skipReg(${idx})">Skip — flag payments pending registration</button>
-  </div>`;
+  formHTML += `</div>
+    <div class="btn-row" style="margin-top:10px">
+      <button class="btn btn-success" id="regBtn" onclick="completeReg(${idx})" disabled>Complete registration for ${npTotal} payees</button>
+      <button class="btn btn-warning" onclick="skipReg(${idx})">Skip — flag payments pending registration</button>
+    </div>`;
   showPrompt(id, formHTML, 'Initial payee registration required');
 }
 
@@ -744,13 +874,11 @@ function upd(tin, field, val, k) {
   const btn = ge('regBtn'); if (btn) btn.disabled = !allDone;
 }
 function completeReg(idx) {
-  const n = SAMPLE.filter(r => r.isNew).length;
-  setCheck('newpayee','passed',`Initial payee registration completed for ${n} new payees.`,`${n} registered`,'pass');
+  setCheck('newpayee','passed','Initial payee registration completed for 13 new payees.','13 registered','pass');
   clearPrompt('newpayee'); runCheck(idx+1);
 }
 function skipReg(idx) {
-  const n = SAMPLE.filter(r => r.isNew).length;
-  setCheck('newpayee','paused',`${n} new payees pending registration — payments flagged.`,`${n} flagged`,'warn');
+  setCheck('newpayee','paused','13 new payees pending registration — payments flagged.','13 flagged','warn');
   clearPrompt('newpayee'); runCheck(idx+1);
 }
 
@@ -773,7 +901,7 @@ async function runTIN(idx) {
         <button class="btn btn-warning" id="tin-override-btn" disabled onclick="overrideAndContinue('${id}',${idx},'Certified officer verified valid reason to proceed without TIN.')">Override — proceed without TIN</button>
       </div>`, 'TIN errors — action required');
   } else {
-    setCheck(id,'passed','All 12 records contain valid TINs matching IRS records.','All valid','pass');
+    setCheck(id,'passed','All 200 records contain valid TINs matching IRS records.','All valid','pass');
     await sleep(200); runCheck(idx+1);
   }
 }
@@ -803,7 +931,7 @@ async function runDeceased(idx) {
 }
 
 async function runBank(idx) {
-  setCheck('bankacct','passed','All 12 bank accounts validated. RTNs verified with Federal Reserve E-Payments Routing Directory. Account-to-payee ownership confirmed via EWS.','All valid','pass');
+  setCheck('bankacct','passed','All 200 bank accounts validated. RTNs verified with Federal Reserve E-Payments Routing Directory. Account-to-payee ownership confirmed via EWS.','All valid','pass');
   await sleep(200); runCheck(idx+1);
 }
 
@@ -815,7 +943,7 @@ async function runIncarceration(idx) {
 async function runDebt(idx) {
   const id = 'debt';
   const debtors = [
-    {name:'Pinnacle Staffing Inc.',tin:'730-81-4405',debt:8420.00,program:'Student Loan — Dept. of Ed.',offset:8420.00,net:25780.00},
+    {name:'Pinnacle Aviation Services Inc.',tin:'730-81-4405',debt:8420.00,program:'Student Loan — Dept. of Ed.',offset:8420.00,net:206980.00},
   ];
   setCheck(id,'paused',`${debtors.length} payee(s) matched Treasury Offset Program records.`,`${debtors.length} TOP match`,'warn');
   const rows = debtors.map(d =>
@@ -831,7 +959,7 @@ async function runDebt(idx) {
 
 async function runHighRisk(idx) {
   const id = 'highrisk';
-  const risky = [{name:'Global Horizons Intl',tin:'776-58-1093',lists:'OFAC SDN, FinCEN Advisory FIN-2024-A001',reason:'Sanctions exposure — listed entity name match'}];
+  const risky = [{name:'Global Transit Horizons Intl',tin:'776-58-1093',lists:'OFAC SDN, FinCEN Advisory FIN-2024-A001',reason:'Sanctions exposure — listed entity name match'}];
   setCheck(id,'paused',`${risky.length} payee(s) flagged on interagency high-risk watchlists.`,`${risky.length} flagged`,'warn');
   const rows = risky.map(r => `<tr><td>${r.name}</td><td style="font-family:var(--mono)">${maskTIN(r.tin)}</td><td>${r.lists}</td><td>${r.reason}</td></tr>`).join('');
   showPrompt(id, `<p>${risky.length} payee(s) appear on one or more interagency high-risk watchlists. Proceeding without removal requires a documented override by the certifying officer.</p>
@@ -890,8 +1018,8 @@ async function runTAS(idx) {
 }
 
 function flagTASReturns(idx) {
-  ['097-0100','012-1105'].forEach(t => returnedFlags.add('tas_' + t));
-  const affected = SAMPLE.filter(r => ['097-0100','012-1105'].includes(r.tas));
+  ['069-0606','069-1750'].forEach(t => returnedFlags.add('tas_' + t));
+  const affected = SAMPLE.filter(r => ['069-0606','069-1750'].includes(r.tas));
   setCheck('tas','paused',`${affected.length} payment(s) on negative/insufficient accounts removed as Payment Returns.`,`${affected.length} returned`,'warn');
   clearPrompt('tas'); runCheck(idx+1);
 }
@@ -909,13 +1037,13 @@ function dismissAndContinue(id, idx, note) {
   clearPrompt(id); runCheck(idx+1);
 }
 
-// ─── Revisit completed checks ─────────────────────────────────────────────
+// --- Revisit completed checks ---------------------------------------------
 const REVISIT_CONTENT = {
   dnp: () => {
     const cards = DNP_LISTS.map(l =>
-      `<div class="dnp-card"><div class="dc-name">${l.name} <span class="badge badge-${l.matches > 0 ? 'err' : 'pass'}">${l.matches} match${l.matches !== 1 ? 'es' : ''}</span></div><div class="dc-detail">${l.abbr} · ${l.screened} payees screened · Last run: ${l.lastRun}</div></div>`
+      `<div class="dnp-card"><div class="dc-name">${l.name} <span class="badge badge-${l.matches > 0 ? 'warn' : 'pass'}">${l.matches} match${l.matches !== 1 ? 'es' : ''}</span></div><div class="dc-detail">${l.abbr} · ${l.screened} payees · Screened: ${l.runs[0]} &amp; ${l.runs[1]}</div></div>`
     ).join('');
-    return `<p>DNP:Connect screening history for this batch:</p><div class="dnp-grid" style="margin-top:8px">${cards}</div>`;
+    return `<p>All 200 payees screened through DNP:Connect on two occasions (Feb 14 &amp; Mar 28, 2025). PIIA compliance confirmed.</p><div class="dnp-grid" style="margin-top:8px">${cards}</div>`;
   },
   newpayee: () => {
     const np = SAMPLE.filter(r => r.isNew);
@@ -933,13 +1061,13 @@ const REVISIT_CONTENT = {
       ? `<p>${dec.length} payee(s) matched SSA Death Master File: ${dec.map(r => r.name).join(', ')}. Resolution: ${CS.deceased.detail}</p>`
       : `<p>No payees matched the SSA Death Master File.</p>`;
   },
-  bankacct:     () => `<p>All 12 bank accounts validated. RTNs verified with Federal Reserve E-Payments Routing Directory. Account-to-payee ownership confirmed via EWS.</p>`,
+  bankacct:     () => `<p>All 200 bank accounts validated. RTNs verified with Federal Reserve E-Payments Routing Directory. Account-to-payee ownership confirmed via EWS.</p>`,
   incarcerated: () => `<p>No payees matched BOP federal incarceration records or state DOC interchange data.</p>`,
   debt: () => {
-    return `<p>1 payee matched Treasury Offset Program: Pinnacle Staffing Inc. Offset of $8,420.00 will apply at disbursement. Net disbursement: $25,780.00. Resolution: ${CS.debt.detail}</p>`;
+    return `<p>1 payee matched Treasury Offset Program: Pinnacle Aviation Services Inc. Offset of $8,420.00 will apply at disbursement. Net disbursement: $206,980.00. Resolution: ${CS.debt.detail}</p>`;
   },
   highrisk: () => {
-    return `<p>1 payee flagged on high-risk watchlists: Global Horizons Intl (OFAC SDN, FinCEN Advisory FIN-2024-A001). Resolution: ${CS.highrisk.detail}</p>`;
+    return `<p>1 payee flagged on high-risk watchlists: Global Transit Horizons Intl (OFAC SDN, FinCEN Advisory FIN-2024-A001). Resolution: ${CS.highrisk.detail}</p>`;
   },
   tas: () => {
     return `<p>Treasury account balance check result: ${CS.tas.detail}</p>`;
@@ -964,7 +1092,7 @@ function toggleRevisit(id) {
   }
 }
 
-// ─── Certification panel ───────────────────────────────────────────────────
+// --- Certification panel ---------------------------------------------------
 function buildCertPanel() {
   const returnedRecords = SAMPLE.filter(r =>
     (returnedFlags.has('missing_tin') && r.flags.includes('missing_tin')) ||
@@ -973,10 +1101,14 @@ function buildCertPanel() {
     (returnedFlags.has('highrisk')    && r.flags.includes('highrisk'))    ||
     [...returnedFlags].some(f => f.startsWith('tas_') && r.tas === f.replace('tas_',''))
   );
-  const pending    = SAMPLE.filter(r => !returnedRecords.includes(r));
-  const totalAmt   = pending.reduce((s,r) => s + r.amount, 0);
-  const returnedAmt = returnedRecords.reduce((s,r) => s + r.amount, 0);
-  const warnings   = Object.values(CS).filter(s => s.status === 'paused').length;
+  // Scale counts to TOTAL (200); SAMPLE rows are representative flagged records
+  const returnedCount = returnedRecords.length;
+  const pendingCount  = TOTAL - returnedCount;
+  // Amounts: scale sample amounts proportionally to represent a 200-payment batch
+  const scale         = TOTAL / SAMPLE.length;
+  const totalAmt      = SAMPLE.filter(r => !returnedRecords.includes(r)).reduce((s,r) => s + r.amount, 0) * scale;
+  const returnedAmt   = returnedRecords.reduce((s,r) => s + r.amount, 0);
+  const warnings      = Object.values(CS).filter(s => s.status === 'paused').length;
 
   const retRows = returnedRecords.map(r =>
     `<tr><td>${r.name}</td><td style="font-family:var(--mono)">${maskTIN(r.tin)}</td><td>${fmt$(r.amount)}</td><td>${r.flags.join(', ')}</td></tr>`
@@ -993,7 +1125,8 @@ function buildCertPanel() {
   const overrideItems = overrideFlags.size > 0 || warnings > 0 ? `
     <div class="override-box">
       <div class="ov-title">Override acknowledgments required before certification</div>
-      ${overrideFlags.has('highrisk') ? `<div class="ov-item"><input type="checkbox" id="ov-hr" onchange="checkCertReady()"><label for="ov-hr">I acknowledge that Global Horizons Intl appears on the OFAC SDN and FinCEN watchlists. I am authorizing this payment with documented justification on file and accept personal responsibility under 31 U.S.C. § 3528.</label></div>` : ''}
+      ${overrideFlags.has('dnp') ? `<div class="ov-item"><input type="checkbox" id="ov-dnp" onchange="checkCertReady()"><label for="ov-dnp">I acknowledge that I have indicated a documented exception to PIIA pre-payment screening requirements for this batch. My exception documentation is on file.</label></div>` : ''}
+      ${overrideFlags.has('highrisk') ? `<div class="ov-item"><input type="checkbox" id="ov-hr" onchange="checkCertReady()"><label for="ov-hr">I acknowledge that Global Transit Horizons Intl appears on the OFAC SDN and FinCEN watchlists. I am authorizing this payment with documented justification on file and accept personal responsibility under 31 U.S.C. § 3528.</label></div>` : ''}
       ${overrideFlags.has('tin') ? `<div class="ov-item"><input type="checkbox" id="ov-tin" onchange="checkCertReady()"><label for="ov-tin">I acknowledge that one or more payments are proceeding without a TIN. I have a valid, documented reason on file and accept personal responsibility under 31 U.S.C. § 3528.</label></div>` : ''}
       ${overrideFlags.has('deceased') ? `<div class="ov-item"><input type="checkbox" id="ov-dec" onchange="checkCertReady()"><label for="ov-dec">I acknowledge that one or more payments are being made to a deceased individual or their estate. I have a valid, documented justification on file and accept personal responsibility under 31 U.S.C. § 3528.</label></div>` : ''}
       ${warnings > 0 ? `<div class="ov-item"><input type="checkbox" id="ov-warn" onchange="checkCertReady()"><label for="ov-warn">I acknowledge ${warnings} unresolved warning(s) remaining in the screening pipeline and accept responsibility for these payments proceeding to disbursement.</label></div>` : ''}
@@ -1009,14 +1142,14 @@ function buildCertPanel() {
         </div>
         <div class="card-body" id="certBody">
           <div class="payment-summary">
-            <div class="ps-card ps-good"><div class="num">${pending.length}</div><div class="lbl">Payments to certify</div></div>
+            <div class="ps-card ps-good"><div class="num">${pendingCount}</div><div class="lbl">Payments to certify</div></div>
             <div class="ps-card ps-good"><div class="num">${fmt$(totalAmt)}</div><div class="lbl">Total amount</div></div>
-            <div class="ps-card ps-bad" ><div class="num">${returnedRecords.length}</div><div class="lbl">Payment Returns</div></div>
+            <div class="ps-card ps-bad" ><div class="num">${returnedCount}</div><div class="lbl">Payment Returns</div></div>
           </div>
 
           <div class="ret-log">
             <div class="ret-log-hdr" onclick="document.getElementById('retBody').classList.toggle('open')">
-              <span>Payment Returns log — ${returnedRecords.length} record${returnedRecords.length!==1?'s':''} · ${fmt$(returnedAmt)}</span>
+              <span>Payment Returns log — ${returnedCount} record${returnedCount!==1?'s':''} · ${fmt$(returnedAmt)}</span>
               <span style="font-size:0.75rem;color:var(--gray-500)">click to toggle</span>
             </div>
             ${retBody}
@@ -1026,7 +1159,7 @@ function buildCertPanel() {
 
           <div class="attestation">
             <strong>Certifying officer attestation — 31 U.S.C. § 3528</strong><br>
-            I, the undersigned certifying officer, certify that the <strong>${pending.length} payment(s)</strong> totaling <strong>${fmt$(totalAmt)}</strong> listed in this batch are proper, legal, and correct; that the payees are entitled to receive payment; that the amounts are accurate; and that all required pre-payment screening checks have been completed in accordance with applicable law and policy including the Payment Integrity Information Act of 2019 (PIIA), OMB Circular A-123 Appendix C, and Do Not Pay Business Center requirements. I understand that certifying an incorrect, improper, or illegal payment may subject me to personal financial liability under 31 U.S.C. § 3528.
+            I, the undersigned certifying officer, certify that the <strong>${pendingCount} payment(s)</strong> totaling <strong>${fmt$(totalAmt)}</strong> listed in this batch are proper, legal, and correct; that the payees are entitled to receive payment; that the amounts are accurate; and that all required pre-payment screening checks have been completed in accordance with applicable law and policy including the Payment Integrity Information Act of 2019 (PIIA), OMB Circular A-123 Appendix C, and Do Not Pay Business Center requirements. I understand that certifying an incorrect, improper, or illegal payment may subject me to personal financial liability under 31 U.S.C. § 3528.
           </div>
 
           <div class="pin-row">
@@ -1037,11 +1170,11 @@ function buildCertPanel() {
 
           <div style="margin-bottom:12px;padding:10px 14px;background:var(--blue-lt);border:1px solid var(--blue-bd);border-radius:var(--radius-md);font-size:0.8rem;color:var(--blue);line-height:1.55">
             <strong style="display:block;margin-bottom:2px">Submitting to Payment Automation Manager (PAM)</strong>
-            Certifying this batch will transmit ${pending.length} payment${pending.length!==1?'s':''} totaling ${fmt$(totalAmt)} directly to PAM for automated processing and disbursement. This action cannot be undone.
+            Certifying this batch will transmit ${pendingCount} payment${pendingCount!==1?'s':''} totaling ${fmt$(totalAmt)} directly to PAM for automated processing and disbursement. This action cannot be undone.
           </div>
 
-          <button class="cert-btn" id="certBtn" onclick="submitCert(${pending.length},${totalAmt},${returnedRecords.length},${returnedAmt})" disabled>
-            Certify and submit to PAM — ${pending.length} payment${pending.length!==1?'s':''}
+          <button class="cert-btn" id="certBtn" onclick="submitCert(${pendingCount},${totalAmt},${returnedCount},${returnedAmt})" disabled>
+            Certify and submit to PAM — ${pendingCount} payment${pendingCount!==1?'s':''}
           </button>
         </div>
       </div>
@@ -1055,7 +1188,8 @@ function checkCertReady() {
   const pinOk   = /^\d{6}$/.test(pin.value);
   const ovHr    = ge('ov-hr');   const ovWarn = ge('ov-warn');
   const ovTin   = ge('ov-tin');  const ovDec  = ge('ov-dec');
-  const ovOk    = (!ovHr || ovHr.checked) && (!ovWarn || ovWarn.checked) && (!ovTin || ovTin.checked) && (!ovDec || ovDec.checked);
+  const ovDnp   = ge('ov-dnp');
+  const ovOk    = (!ovHr || ovHr.checked) && (!ovWarn || ovWarn.checked) && (!ovTin || ovTin.checked) && (!ovDec || ovDec.checked) && (!ovDnp || ovDnp.checked);
   btn.disabled  = !(pinOk && ovOk);
 }
 
@@ -1096,7 +1230,9 @@ function exportAudit(ref) {
 
 function resetAll() {
   ge('step-screening').style.display = 'none';
-  ge('step-upload').style.display    = 'block';
+  ge('step-preview').style.display   = 'none';
+  ge('step-upload').style.display    = 'none';
+  ge('step-welcome').style.display   = 'block';
   ge('sumBar').style.display         = 'none';
   ge('checksList').innerHTML         = '';
   ge('certArea').innerHTML           = '';
